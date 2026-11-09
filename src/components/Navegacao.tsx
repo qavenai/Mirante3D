@@ -1,4 +1,4 @@
-import { Box, CircleHelp, House, MessageCircle, PanelLeftClose, PanelLeftOpen, Route, Search, type LucideIcon } from 'lucide-react';
+import { Box, CircleHelp, House, Menu, MessageCircle, PanelLeftClose, PanelLeftOpen, Route, Search, X, type LucideIcon } from 'lucide-react';
 import { TOURS } from '../data/tours';
 import { WHATSAPP_EXIBICAO, linkWhatsApp } from '../data/conteudo';
 import { href } from '../lib/router';
@@ -14,13 +14,27 @@ export const ITENS: Item[] = [
   { id: 'orcamento', rotulo: 'Orçamento', destino: 'orcamento', icone: MessageCircle },
 ];
 
-export function Sidebar({ ativo, recolhida, alternar }: { ativo: string; recolhida: boolean; alternar: () => void }) {
+type SidebarProps = { ativo: string; recolhida: boolean; alternar: () => void; gaveta: boolean; aberta: boolean; fechar: () => void };
+
+export function Sidebar({ ativo, recolhida: recolhidaPref, alternar, gaveta, aberta, fechar }: SidebarProps) {
+  // no celular o menu vira uma gaveta: fica escondido e desliza da esquerda
+  const recolhida = recolhidaPref && !gaveta;
   return (
-    <aside className={'sidebar' + (recolhida ? ' recolhida' : '')} aria-label="Menu principal">
+    <aside
+      id="menu-lateral"
+      className={'sidebar' + (recolhida ? ' recolhida' : '') + (gaveta ? ' gaveta' : '') + (aberta ? ' aberta' : '')}
+      aria-label="Menu principal"
+      aria-hidden={gaveta && !aberta ? true : undefined}
+    >
       <div className="sb-topo">
         <a href={href('inicio')} className="sb-logo" aria-label="Mirante, início">
           {recolhida ? <Simbolo className="sb-simbolo" /> : <Logo className="sb-marca" />}
         </a>
+        {gaveta && (
+          <button className="sb-fechar" onClick={fechar} aria-label="Fechar menu">
+            <X size={20} />
+          </button>
+        )}
       </div>
 
       <nav className="sb-nav">
@@ -61,10 +75,13 @@ export function Sidebar({ ativo, recolhida, alternar }: { ativo: string; recolhi
   );
 }
 
-export function Topbar({ titulo, abrirBusca }: { titulo: string; abrirBusca: () => void }) {
+export function Topbar({ titulo, abrirBusca, abrirMenu, menuAberto }: { titulo: string; abrirBusca: () => void; abrirMenu: () => void; menuAberto: boolean }) {
   const mac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
   return (
     <header className="topbar">
+      <button className="tb-menu" onClick={abrirMenu} aria-label="Abrir menu" aria-expanded={menuAberto} aria-controls="menu-lateral">
+        <Menu size={22} />
+      </button>
       <a href={href('inicio')} className="tb-logo" aria-label="Mirante, início">
         <Logo className="tb-marca" />
       </a>
@@ -81,29 +98,5 @@ export function Topbar({ titulo, abrirBusca }: { titulo: string; abrirBusca: () 
         <MessageCircle size={18} /> Pedir orçamento
       </a>
     </header>
-  );
-}
-
-export function MobileNav({ ativo, abrirBusca }: { ativo: string; abrirBusca: () => void }) {
-  const itens = ITENS.filter((i) => i.id !== 'como-funciona');
-  return (
-    <nav className="tabbar" aria-label="Navegação">
-      {itens.slice(0, 2).map(({ id, rotulo, destino, icone: Icone }) => (
-        <a key={id} href={href(destino)} className={ativo === id || (id === 'tours' && ativo.startsWith('tour:')) ? 'ativo' : ''}>
-          <Icone size={22} strokeWidth={1.9} />
-          <span>{rotulo}</span>
-        </a>
-      ))}
-      <button onClick={abrirBusca} className="tab-busca" aria-label="Buscar">
-        <span className="tab-busca-bola"><Search size={22} /></span>
-        <span>Buscar</span>
-      </button>
-      {itens.slice(2).map(({ id, rotulo, destino, icone: Icone }) => (
-        <a key={id} href={href(destino)} className={ativo === id ? 'ativo' : ''}>
-          <Icone size={22} strokeWidth={1.9} />
-          <span>{rotulo}</span>
-        </a>
-      ))}
-    </nav>
   );
 }

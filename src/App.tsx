@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Busca } from './components/Busca';
-import { MobileNav, Sidebar, Topbar } from './components/Navegacao';
+import { Sidebar, Topbar } from './components/Navegacao';
 import { tourPorSlug } from './data/tours';
 import { lerPreferencia, salvarPreferencia, useRota } from './lib/router';
 import { ComoFunciona, Duvidas, Inicio, Orcamento, Tours } from './pages/Paginas';
@@ -13,6 +13,15 @@ export default function App() {
   const [busca, setBusca] = useState(false);
   const [recolhida, setRecolhida] = useState(() => lerPreferencia('mirante:menu', 'aberto') === 'recolhido');
   const [aviso, setAviso] = useState<string | null>(null);
+  const [gaveta, setGaveta] = useState(() => window.matchMedia('(max-width: 1023px)').matches);
+  const [menuAberto, setMenuAberto] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const f = () => { setGaveta(mq.matches); if (!mq.matches) setMenuAberto(false); };
+    mq.addEventListener('change', f);
+    return () => mq.removeEventListener('change', f);
+  }, []);
 
   const [secao, sub] = rota.caminho;
   const pagina = secao || 'inicio';
@@ -28,6 +37,15 @@ export default function App() {
     window.addEventListener('keydown', f);
     return () => window.removeEventListener('keydown', f);
   }, [busca]);
+
+  useEffect(() => setMenuAberto(false), [pagina, sub, rota.query.toString()]);
+
+  useEffect(() => {
+    if (!menuAberto) return;
+    const f = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuAberto(false); };
+    window.addEventListener('keydown', f);
+    return () => window.removeEventListener('keydown', f);
+  }, [menuAberto]);
 
   useEffect(() => {
     document.title = `${titulo} · Mirante`;
@@ -53,9 +71,10 @@ export default function App() {
 
   return (
     <div className={'app' + (recolhida ? ' menu-recolhido' : '')}>
-      <Sidebar ativo={ativo} recolhida={recolhida} alternar={alternarMenu} />
+      <Sidebar ativo={ativo} recolhida={recolhida} alternar={alternarMenu} gaveta={gaveta} aberta={menuAberto} fechar={() => setMenuAberto(false)} />
+      {gaveta && <div className={'gaveta-fundo' + (menuAberto ? ' visivel' : '')} onClick={() => setMenuAberto(false)} aria-hidden="true" />}
       <div className="principal">
-        <Topbar titulo={titulo} abrirBusca={() => setBusca(true)} />
+        <Topbar titulo={titulo} abrirBusca={() => setBusca(true)} abrirMenu={() => setMenuAberto(true)} menuAberto={menuAberto} />
         <main className="conteudo" id="conteudo">
           {conteudo}
           <footer className="rodape">
@@ -63,7 +82,6 @@ export default function App() {
           </footer>
         </main>
       </div>
-      <MobileNav ativo={ativo} abrirBusca={() => setBusca(true)} />
       <Busca aberta={busca} fechar={() => setBusca(false)} />
       <div className={'aviso' + (aviso ? ' visivel' : '')} role="status" aria-live="polite">{aviso}</div>
     </div>
