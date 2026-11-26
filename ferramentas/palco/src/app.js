@@ -157,40 +157,40 @@ function pano(p,L,Hh,prega){const nx=Math.max(8,Math.round(L/.06)),ny=12;const g
   g.computeVertexNormals();const m=new THREE.Mesh(g,P.lona);p.add(m);return m;}
 /* ================= PISO DO PALCO, ESCADARIA E PIRÂMIDE ================= */
 const palco=new THREE.Group();scene.add(palco);
-bx(palco,P.preto,-21,H-.12,-15,21,H-.002,0);bx(palco,P.preto,-21,0,-15,21,H-.12,-.05);
-const pisoPalco=new THREE.Mesh(new THREE.PlaneGeometry(42,15),P.piso);pisoPalco.rotation.x=-Math.PI/2;pisoPalco.position.set(0,H,-7.5);pisoPalco.receiveShadow=true;palco.add(pisoPalco);
-bx(palco,B({color:new THREE.Color(1.6,1.15,.6),toneMapped:false}),-21,H-.04,-.06,21,H,0);   // filete de luz na borda
+const DECK=[bx(palco,P.preto,-21,H-.12,-15,21,H-.002,0),bx(palco,P.preto,-21,0,-15,21,H-.12,-.05)];
+const pisoPalco=new THREE.Mesh(new THREE.PlaneGeometry(42,15),P.piso);pisoPalco.rotation.x=-Math.PI/2;pisoPalco.position.set(0,H,-7.5);pisoPalco.receiveShadow=true;palco.add(pisoPalco);DECK.push(pisoPalco);
+DECK.push(bx(palco,B({color:new THREE.Color(1.6,1.15,.6),toneMapped:false}),-21,H-.04,-.06,21,H,0));   // filete de luz na borda
 // escadaria: 16 degraus maciços
-const DEGRAUS=[];
+const DEGRAUS=[],GUARDA=[],PIR=[],QUEIM=[],PANOS=[];let PATAMAR,FUNDO_PIR;
 {const rise=(ESC.topo-H)/ESC.n,run=(ESC.z0-ESC.z1)/ESC.n;
  for(let k=0;k<ESC.n;k++){const y1=H+(k+1)*rise,za=ESC.z0-k*run;const d=bxC(palco,P.arenito,-ESC.w/2,H,za-run-.02,ESC.w/2,y1,za,.018);DEGRAUS.push(d);}
- bxC(palco,P.arenito,-4.6,H,ESC.zTopo,4.6,ESC.topo,ESC.z1,.02);                         // patamar do topo
+ PATAMAR=bxC(palco,P.arenito,-4.6,H,ESC.zTopo,4.6,ESC.topo,ESC.z1,.02);                         // patamar do topo
  // guarda-corpos de pedra seguindo a inclinação, com o topo reto onde ficam as chamas
  const perfil=[[ESC.z0+.8,H],[ESC.z0+.8,H+1.05],[ESC.z1,ESC.topo+1.05],[ESC.zTopo,ESC.topo+1.05],[ESC.zTopo,H]];
  const sh=new THREE.Shape(perfil.map(p=>new THREE.Vector2(-p[0],p[1])));
  for(const lado of [-1,1]){const g=new THREE.ExtrudeGeometry(sh,{depth:.9,bevelEnabled:true,bevelSize:.04,bevelThickness:.04,bevelSegments:1});g.rotateY(Math.PI/2);
-   const m=new THREE.Mesh(g,P.arenito);m.position.x=lado>0?ESC.w/2:-ESC.w/2-.9;palco.add(m);}
+   const m=new THREE.Mesh(g,P.arenito);m.position.x=lado>0?ESC.w/2:-ESC.w/2-.9;palco.add(m);GUARDA.push(m);}
  // pirâmide escalonada dos dois lados (quatro patamares)
  for(const lado of [-1,1])for(let k=0;k<4;k++){const x0=ESC.w/2+.9,w=7.6-k*1.6,za=-3.4-k*1.9;const y0=H+k*1.25;
-   const a=lado>0?x0:-x0-w,b=lado>0?x0+w:-x0;bxC(palco,k%2?P.arenitoEsc:P.arenito,a,y0,ESC.zTopo,b,y0+1.25,za,.025);}
+   const a=lado>0?x0:-x0-w,b=lado>0?x0+w:-x0;PIR.push(bxC(palco,k%2?P.arenitoEsc:P.arenito,a,y0,ESC.zTopo,b,y0+1.25,za,.025));}
  // fundo da pirâmide encostando no LED
- bx(palco,P.arenitoEsc,-13,H,LEDC.z+.05,13,H+.6,ESC.zTopo);}
+ FUNDO_PIR=bx(palco,P.arenitoEsc,-13,H,LEDC.z+.05,13,H+.6,ESC.zTopo);}
 // pontos dos queimadores de chama no topo dos guarda-corpos
 const FOGO_POS=[];
 for(const lado of [-1,1])for(let i=0;i<7;i++){const t=.06+i*.15;const z=ESC.z0+.8+(ESC.z1-ESC.z0-.8)*Math.min(1,t*1.12);const y=t*1.12<1?H+1.05+(ESC.topo-H)*Math.min(1,t*1.12):ESC.topo+1.05;
-  const x=lado*(ESC.w/2+.45);FOGO_POS.push(new V3(x,y,z));bx(palco,P.pretoMet,x-.22,y,z-.22,x+.22,y+.16,z+.22);}
+  const x=lado*(ESC.w/2+.45);FOGO_POS.push(new V3(x,y,z));QUEIM.push(bx(palco,P.pretoMet,x-.22,y,z-.22,x+.22,y+.16,z+.22));}
 /* panos pretos de fundo e laterais (escondem a arquibancada atrás do palco) */
-{const f=pano(palco,51,YC_PANO,.09);f.position.set(0,YC_PANO/2,-15.5);for(const s of [-1,1]){const l=pano(palco,13.4,YC_PANO,.08);l.rotation.y=-s*Math.PI/2;l.position.set(s*25.2,YC_PANO/2,-8.7);}}
+{const f=pano(palco,51,YC_PANO,.09);f.position.set(0,YC_PANO/2,-15.5);PANOS.push(f);for(const s of [-1,1]){const l=pano(palco,13.4,YC_PANO,.08);l.rotation.y=-s*Math.PI/2;l.position.set(s*25.2,YC_PANO/2,-8.7);PANOS.push(l);}}
 /* ================= ESTRUTURA DOS LEDs ================= */
-bx(palco,P.preto,LEDC.x0-.4,LEDC.y0-.4,LEDC.z-.6,LEDC.x1+.4,LEDC.y1+.4,LEDC.z-.02);
+const LEDCX=bx(palco,P.preto,LEDC.x0-.4,LEDC.y0-.4,LEDC.z-.6,LEDC.x1+.4,LEDC.y1+.4,LEDC.z-.02);
 const LATG=[];
 for(const L of LAT){const g=new THREE.Group();g.position.set(L.x,0,LATD.z);g.rotation.y=L.ang;scene.add(g);
   bx(g,P.preto,-LATD.w/2-.3,LATD.y0-.3,-.6,LATD.w/2+.3,LATD.y0+LATD.h+.3,-.02);
   bx(g,P.preto,-LATD.w/2,0,-.9,LATD.w/2,LATD.y0-.3,-.2);   // saia preta embaixo da tela
   LATG.push(g);}
 /* ================= TRELIÇAS (torres e cobertura) ================= */
-const TUBOS=[];
-function tubo(a,b,r){TUBOS.push([a.clone(),b.clone(),r]);}
+const TUBOS=[];let ETQ_T='';
+function tubo(a,b,r){TUBOS.push([a.clone(),b.clone(),r,ETQ_T]);}
 function trelica(a,b,s){const d=new V3().subVectors(b,a);const L=d.length();d.normalize();const up=Math.abs(d.y)>.9?new V3(1,0,0):new V3(0,1,0);const u=new V3().crossVectors(d,up).normalize().multiplyScalar(s/2),v=new V3().crossVectors(d,u).normalize().multiplyScalar(s/2);
   const cant=[u.clone().add(v),u.clone().sub(v),u.clone().negate().sub(v),u.clone().negate().add(v)];
   for(const c of cant)tubo(a.clone().add(c),b.clone().add(c),.024);
@@ -198,23 +198,30 @@ function trelica(a,b,s){const d=new V3().subVectors(b,a);const L=d.length();d.no
     for(let f=0;f<4;f++){const c0=cant[f],c1=cant[(f+1)%4];tubo(p0.clone().add(i%2?c0:c1),p1.clone().add(i%2?c1:c0),.012);}
     for(let f=0;f<4;f++)tubo(p0.clone().add(cant[f]),p0.clone().add(cant[(f+1)%4]),.012);}}
 const YC=18.5,ZT=[-1.2,-5.2,-9.2,-14.2];
-for(const x of [-24.5,24.5])for(const z of [-1.2,-14.2])trelica(new V3(x,0,z),new V3(x,YC+.4,z),.76);
-for(const z of ZT)trelica(new V3(-24.5,YC,z),new V3(24.5,YC,z),.6);
+ETQ_T='torres';for(const x of [-24.5,24.5])for(const z of [-1.2,-14.2])trelica(new V3(x,0,z),new V3(x,YC+.4,z),.76);
+ETQ_T='grid';for(const z of ZT)trelica(new V3(-24.5,YC,z),new V3(24.5,YC,z),.6);
 for(const x of [-24.5,-12,0,12,24.5])trelica(new V3(x,YC,-1.2),new V3(x,YC,-14.2),.5);
-for(const L of LAT)for(const dx of [-1,1]){const g=LATG[LAT.indexOf(L)];const p=new V3(dx*(LATD.w/2+.8),0,-.4).applyMatrix4(g.matrixWorld.compose(g.position,g.quaternion,g.scale));trelica(new V3(p.x,0,p.z),new V3(p.x,LATD.y0+LATD.h+1.2,p.z),.4);}
+ETQ_T='torresLat';for(const L of LAT)for(const dx of [-1,1]){const g=LATG[LAT.indexOf(L)];const p=new V3(dx*(LATD.w/2+.8),0,-.4).applyMatrix4(g.matrixWorld.compose(g.position,g.quaternion,g.scale));trelica(new V3(p.x,0,p.z),new V3(p.x,LATD.y0+LATD.h+1.2,p.z),.4);}
 // torres de delay no meio da pista
-for(const x of [-21,21])trelica(new V3(x,0,40),new V3(x,13,40),.6);
-{const g=new THREE.CylinderGeometry(1,1,1,lowGPU?6:10,1);g.translate(0,.5,0);const im=new THREE.InstancedMesh(g,P.trelica,TUBOS.length);const o=new THREE.Object3D(),d=new V3(),Y=new V3(0,1,0);
- TUBOS.forEach(([a,b,r],i)=>{d.subVectors(b,a);const L=d.length();o.position.copy(a);o.quaternion.setFromUnitVectors(Y,d.normalize());o.scale.set(r,L,r);o.updateMatrix();im.setMatrixAt(i,o.matrix);});im.castShadow=true;scene.add(im);}
+ETQ_T='torresDelay';for(const x of [-21,21])trelica(new V3(x,0,40),new V3(x,13,40),.6);
+// uma malha por conjunto (torres, grid, torres dos LEDs laterais, delay), ordenada para a montagem revelar peça por peça
+const TRELICAS={};
+{const g=new THREE.CylinderGeometry(1,1,1,lowGPU?6:10,1);g.translate(0,.5,0);const o=new THREE.Object3D(),d=new V3(),Y=new V3(0,1,0);
+ const chave={grid:t=>t[0].x+t[1].x+(t[0].z+t[1].z)*.01,torres:t=>Math.min(t[0].y,t[1].y),torresLat:t=>Math.min(t[0].y,t[1].y),torresDelay:t=>Math.min(t[0].y,t[1].y)};
+ for(const tag of [...new Set(TUBOS.map(t=>t[3]))]){const L=TUBOS.filter(t=>t[3]===tag).sort((p,q)=>chave[tag](p)-chave[tag](q));const im=new THREE.InstancedMesh(g,P.trelica,L.length);
+  L.forEach(([a,b,r],i)=>{d.subVectors(b,a);const Lt=d.length();o.position.copy(a);o.quaternion.setFromUnitVectors(Y,d.normalize());o.scale.set(r,Lt,r);o.updateMatrix();im.setMatrixAt(i,o.matrix);});
+  im.castShadow=true;scene.add(im);TRELICAS[tag]=im;}}
 /* ================= SISTEMA DE SOM (line arrays) ================= */
 function lineArray(x,yTopo,z,n,ang){const g=new THREE.Group();g.position.set(x,yTopo,z);g.rotation.y=ang||0;scene.add(g);let y=0,a=0;
   for(let i=0;i<n;i++){const b=bx(g,P.preto,-.62,-.36,-.42,.62,0,.42);b.position.set(0,y-.18,Math.sin(a)*.3*i*.1);b.rotation.x=a;y-=.4;a+=i>n*.45?.045:.008;}
   bx(g,P.pretoMet,-.7,0,-.45,.7,.12,.45);return g;}
-for(const s of [-1,1]){lineArray(s*22.3,17.2,.4,14,s*.12);lineArray(s*25.6,17.2,-1.2,10,s*.5);lineArray(s*21,12.4,40.6,8,0);
-  for(let k=0;k<3;k++)for(let j=0;j<2;j++)bx(scene,P.preto,s*(9+k*1.45)-.65,j*.75,.6,s*(9+k*1.45)+.65,j*.75+.72,1.5);}
+const LA=[],SUBS=[];
+for(const s of [-1,1]){LA.push(lineArray(s*22.3,17.2,.4,14,s*.12),lineArray(s*25.6,17.2,-1.2,10,s*.5),lineArray(s*21,12.4,40.6,8,0));
+  for(let k=0;k<3;k++)for(let j=0;j<2;j++)SUBS.push(bx(scene,P.preto,s*(9+k*1.45)-.65,j*.75,.6,s*(9+k*1.45)+.65,j*.75+.72,1.5));}
 /* ================= GRADE, MESA DE SOM E PISO DA PISTA ================= */
-for(let x=-26;x<26;x+=1.2){bx(scene,P.grade,x,0,2.25,x+1.14,1.2,2.35);bx(scene,P.grade,x,0,2.3,x+.05,.06,3.2);}
-{const fx=0,fz=PONTO.z;bx(scene,P.preto,fx-5,0,fz-3,fx+5,.6,fz+3.5);bx(scene,P.pretoMet,fx-3.2,.6,fz-1.2,fx+3.2,1.5,fz-.2);
+const GRADE=[];for(let x=-26;x<26;x+=1.2){GRADE.push([bx(scene,P.grade,x,0,2.25,x+1.14,1.2,2.35),bx(scene,P.grade,x,0,2.3,x+.05,.06,3.2)]);}
+const fohG=new THREE.Group();scene.add(fohG);
+{const fx=0,fz=PONTO.z;const scene=fohG;bx(scene,P.preto,fx-5,0,fz-3,fx+5,.6,fz+3.5);bx(scene,P.pretoMet,fx-3.2,.6,fz-1.2,fx+3.2,1.5,fz-.2);
  for(const [x,z] of [[-4.8,-2.8],[4.8,-2.8],[-4.8,3.3],[4.8,3.3]])cyl(scene,P.trelica,fx+x,.6,fz+z,.06,.06,4,8);bx(scene,P.lona,fx-5.2,4.6,fz-3.2,fx+5.2,4.75,fz+3.7);
  for(let i=0;i<8;i++)bx(scene,B({color:new THREE.Color(.3,.6,1.2),toneMapped:false}),fx-2.9+i*.75,1.5,fz-1.05,fx-2.5+i*.75,1.52,fz-.35);}
 const chao=new THREE.Mesh(new THREE.PlaneGeometry(400,400),P.chao);chao.rotation.x=-Math.PI/2;chao.receiveShadow=true;scene.add(chao);
@@ -551,6 +558,7 @@ function renderMundo(){if(!SEM_NUV&&(!lowGPU||quadroNuv++%2===0))renderNuvens();
   renderer.setRenderTarget(rtLED);renderer.render(cenaRS,camQuad);renderer.setRenderTarget(null);}
 
 /*GENTE*/
+const N_P1=palco.children.length;   // o que entra no grupo 'palco' depois disso é o equipamento da banda
 /* ================= NO PALCO: intérprete genérico e banda (personagens próprios, sem retratar ninguém) ================= */
 bx(palco,P.preto,-12.5,H,-11.5,-7.5,H+.6,-7.5);bx(palco,P.preto,7.5,H,-11.5,12.5,H+.6,-7.5);
 {const y=H+.6,x=-10,z=-9.6;cyl(palco,M({color:'#e9e6df',roughness:.4}),x,y,z-.3,.3,.3,.5,20).rotation.x=Math.PI/2;for(const [dx,dz,r] of [[-.6,.2,.18],[.6,.2,.18],[-.35,-.25,.16],[.4,-.2,.16]])cyl(palco,M({color:'#e9e6df',roughness:.4}),x+dx,y+.55,z+dz,r,r,.2,18);
@@ -857,6 +865,7 @@ let auto=false,autoT=0;const bSeq=document.getElementById('bSeq');
 bSeq.onclick=()=>{auto=!auto;autoT=0;bSeq.setAttribute('aria-pressed',auto);document.body.classList.toggle('cine',auto);if(auto){tween=null;camsEl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));legenda('Câmera automática','Planos de pré-visualização em sequência. Toque numa câmera para sair.');}};
 function planoAuto(dt){autoT+=dt;const D=6.5;const i=Math.floor(autoT/D)%PLANOS.length,u=(autoT%D)/D;const S=PLANOS[i];const k=u*u*(3-2*u)*.6+u*.4;
   camera.position.set(...S.p0).lerp(new V3(...S.p1),k);look.set(...S.l0).lerp(new V3(...S.l1),k);camera.fov=S.fov*(camera.aspect<1?1.45:1);camera.updateProjectionMatrix();camera.lookAt(look);controls.target.copy(look);}
+/*MONTAGEM*/
 /* ================= LINHA DO TEMPO / CAMADAS / MODOS ================= */
 const univBtns=[...document.querySelectorAll('#universos button')];
 univBtns.forEach(b=>b.onclick=()=>{tShow=+b.dataset.i*DUR_U+.01;});
@@ -870,8 +879,8 @@ const bPrev=document.getElementById('bPrev'),bMidia=document.getElementById('bMi
 function setMidia(v){modoMidia=v;bPrev.setAttribute('aria-pressed',!v);bMidia.setAttribute('aria-pressed',v);document.body.classList.toggle('midia',v);document.getElementById('midia').hidden=!v;LED_U.uMidia.value=v?1:0;layoutMidia();}
 bPrev.onclick=()=>setMidia(false);bMidia.onclick=()=>setMidia(true);
 bInfo.onclick=()=>{info.hidden=!info.hidden;bInfo.setAttribute('aria-pressed',!info.hidden);};document.getElementById('infoX').onclick=()=>{info.hidden=true;bInfo.setAttribute('aria-pressed','false');};
-addEventListener('keydown',e=>{if(e.key===' '){tocando=!tocando;iconePlay();e.preventDefault();}if(['1','2','3'].includes(e.key))tShow=(+e.key-1)*DUR_U+.01;});
-renderer.domElement.addEventListener('pointerdown',()=>{if(auto){auto=false;bSeq.setAttribute('aria-pressed','false');document.body.classList.remove('cine');}tween=null;});
+addEventListener('keydown',e=>{if(e.key===' '&&MONT.ativo){bMPlay.click();e.preventDefault();return;}if(e.key===' '){tocando=!tocando;iconePlay();e.preventDefault();}if(['1','2','3'].includes(e.key))tShow=(+e.key-1)*DUR_U+.01;});
+renderer.domElement.addEventListener('pointerdown',()=>{MONT.camAuto=false;if(auto){auto=false;bSeq.setAttribute('aria-pressed','false');document.body.classList.remove('cine');}tween=null;});
 /* ================= MODO MÍDIA DO LED: o conteúdo como sai para o servidor de mídia ================= */
 const midiaCena=new THREE.Scene();midiaCena.background=new THREE.Color('#0b0a09');
 const midiaCam=new THREE.OrthographicCamera(0,1,1,0,-1,1);
@@ -891,11 +900,11 @@ function layoutMidia(){const W=innerWidth,Hh=innerHeight;midiaCam.left=0;midiaCa
     rot(lx,sy-sh/2-10,'<b>Lateral E</b> · câmera ao vivo + moldura','c')+rot(rx,sy-sh/2-10,'<b>Lateral D</b> · câmera ao vivo + moldura','c');}
 addEventListener('resize',layoutMidia);
 /* ================= LAÇO ================= */
-function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);if(composer){composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(w,h);}camera.aspect=w/h;camera.updateProjectionMatrix();}
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);if(composer){composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(w,h);}camera.aspect=w/h;camera.updateProjectionMatrix();vista();}
 addEventListener('resize',resize);
 const relogio=new THREE.Clock();let frame=0,ultLOD=-1,congelado=false,erroLoop=0;
 const R_VIS=R_PERTO+16;
-function lodPublico(){pubG.lod(camera);palcoG.lod(camera,true);FIG_U.uNear.value=R_PERTO;FIG_U.uFar.value=400;}
+function lodPublico(){if(!MONT.ativo)pubG.lod(camera);palcoG.lod(camera,true);if(MONT.ativo)trabG.lod(camera,true);FIG_U.uNear.value=R_PERTO;FIG_U.uFar.value=400;}
 const imagT=[0,0];
 function renderImag(t){const i=frame%2;const c=camImag[i];const a=TOPO_ART;
   if(i===0){c.position.set(-1.5+Math.sin(t*.21)*.25,ESC.topo+1.05+Math.sin(t*.37)*.05,a.z+6.2);c.lookAt(a.x+.1,ESC.topo+1.35,a.z);}
@@ -907,13 +916,16 @@ function loop(){try{passo();}catch(e){if(erroLoop++<3)console.error('[palco]',e&
 function passo(){if(congelado)return;const dt=Math.min(.05,relogio.getDelta()),t=relogio.elapsedTime;frame++;
   const S=atualizaShow(dt,t);
   univBtns.forEach((b,i)=>{b.setAttribute('aria-pressed',i===S.ui);b.querySelector('i').style.width=(i===S.ui?S.tu/DUR_U*100:0)+'%';});
-  if(auto)planoAuto(dt);
+  if(MONT.ativo)atualizaMontagem(dt,t);
+  if(MONT.ativo&&MONT.camAuto&&!tween)camMontagem(dt,t);
+  else if(auto)planoAuto(dt);
   else if(tween){if(tween.t===0)ultLOD=-1;tween.t+=dt/tween.d;const k=ease(Math.min(1,tween.t));camera.position.lerpVectors(tween.p0,tween.p1,k);controls.target.lerpVectors(tween.l0,tween.l1,k);camera.fov=tween.f0+(tween.f1-tween.f0)*k;camera.updateProjectionMatrix();camera.lookAt(controls.target);if(tween.t>=1)tween=null;}
   else{controls.update();if(camera.position.y<.5){camera.position.y=.5;camera.lookAt(controls.target);}}
   if(t-ultLOD>.25){ultLOD=t;lodPublico();}
-  if(!lowGPU||frame%2===0)renderMundo();
+  const ledVivo=!MONT.ativo||MONT.ledVivo;
+  if(ledVivo&&(!lowGPU||frame%2===0))renderMundo();
   if(espelho&&!modoMidia)espelho.render(camera);
-  if(!modoMidia&&(!lowGPU||frame%3===0))renderImag(t);else if(modoMidia&&frame%2===0)renderImag(t);
+  if(ledVivo&&!modoMidia&&(!lowGPU||frame%3===0))renderImag(t);else if(modoMidia&&frame%2===0)renderImag(t);
   if(modoMidia){renderer.setRenderTarget(null);renderer.render(midiaCena,midiaCam);}
   else if(composer)composer.render(dt);else renderer.render(scene,camera);}
 aplicaCamadas();resize();layoutMidia();iconePlay();
@@ -925,6 +937,7 @@ window.__palco={irCam,setMidia,camadas,aplicaCamadas,get tShow(){return tShow;},
   quadroMidia:(ui,tLoop)=>{congelado=true;midiaPura=true;document.body.classList.add('exporta');setMidia(true);misturaUniv(UNIV[ui],1);UE.rec=UNIV[ui].rec;atualizaMundo(tLoop,0);renderMundo();renderer.setRenderTarget(null);renderer.render(midiaCena,midiaCam);return renderer.domElement.toDataURL('image/png');},
   moldura:()=>texMoldura.userData.canvas.toDataURL('image/png'),tamRT:(w,h)=>{rtLED.setSize(w,h);},
   instantaneo:(ui,tu)=>{tShow=ui*DUR_U+tu;misturaUniv(UNIV[ui],1);UE.rec=UNIV[ui].rec;const L=LUZ[ui];LE.feixe.set(L.feixe);LE.feixe2.set(L.feixe2);LE.pix.set(L.pix);LE.fum.set(L.fum);LE.wash.set(L.wash);LE.hemi.set(L.hemi);for(const a of ['pixK','fogo','washI','seg'])LE[a]=L[a];},
+  setMontagem,montT:v=>{MONT.t=v;},montPausa:v=>{MONT.tocando=!v;iconeMont();},montCam:v=>{MONT.camAuto=!!v;},camEtapaJa,etapas:()=>ETAPAS.map(e=>[e.id,e.ini,e.d]),get montEtapa(){return MONT.etapa;},T_MONT,
   dbg:()=>({cenaNuv,camQuad,NV_U,rtNuv,renderNuvens,UE}),
   // exporta poses e figurino para os renders do Blender (ferramentas/palco/render_cycles.py)
   exportaCena:()=>{const d=texOssos.image.data;const u8=new Uint8Array(d.buffer);let b='';for(let i=0;i<u8.length;i+=8192)b+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));

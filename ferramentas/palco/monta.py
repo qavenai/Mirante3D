@@ -11,5 +11,13 @@ for m in re.findall(r'/\*([A-Z]+)\*/', app):
     if os.path.exists(f):
         app = app.replace('/*' + m + '*/', ler(m.lower() + '.js'), 1)
 html = ler('shell.html').replace('<!--APP-->', '<script>\n' + ler('vendor.js') + '\n</script>\n<script>\n' + app + '\n</script>')
+# confere a sintaxe do script antes de gravar (nomes repetidos, chaves abertas)
+import subprocess, tempfile
+with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8') as tf:
+    tf.write(app)
+r = subprocess.run(['node', '--check', tf.name], capture_output=True, text=True)
+os.unlink(tf.name)
+if r.returncode:
+    raise SystemExit('erro de sintaxe no app:\n' + r.stderr[-2000:])
 open(DEST, 'w', encoding='utf-8').write(html)
 print('ok', os.path.relpath(DEST), len(html) // 1024, 'KB')

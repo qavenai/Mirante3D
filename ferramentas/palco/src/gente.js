@@ -122,6 +122,26 @@ const ANIM=[
  {id:'tambor',L:2,f:(p,E)=>{const b=p*2*TAU;const P=[];const a=Math.max(0,sn(b)),c=Math.max(0,sn(b+Math.PI));
    P.push(['spine_03',X,.12],['head',X,.12+.05*a]);braco(P,1,E,-.1,.75+.3*a,1.2-.5*a,.2);braco(P,-1,E,-.1,.75+.3*c,1.2-.5*c,.2);mao(P,1,E,.2,.1,.3*a);mao(P,-1,E,.2,.1,.3*c);
    perna(P,1,E,.05,.1);perna(P,-1,E,.05,.1);return {P,raiz:[0,-.01,0]};}},
+
+ // equipe de montagem: andar, carregar, trabalhar no alto e apontar
+ {id:'anda',L:2,f:(p,E)=>{const b=p*TAU;const P=[];const sw=sn(b);
+   P.push(['pelvis',Y,sw*.07],['spine_02',Y,-sw*.06],['spine_03',X,.05],['head',X,.04]);
+   braco(P,1,E,-.64,-sw*.38,.25+.2*Math.max(0,-sw),0);braco(P,-1,E,-.64,sw*.38,.25+.2*Math.max(0,sw),0);mao(P,1,E,.4);mao(P,-1,E,.4);
+   const kL=Math.max(0,sn(b+1.3)),kR=Math.max(0,sn(b+1.3+Math.PI));
+   perna(P,1,E,sw*.42+.04,kL*.85+.06);perna(P,-1,E,-sw*.42+.04,kR*.85+.06);return {P,raiz:[0,.022*Math.abs(cs(b))-.02,0]};}},
+ {id:'carrega',L:2,f:(p,E)=>{const b=p*TAU;const P=[];const sw=sn(b);
+   P.push(['pelvis',Y,sw*.05],['spine_03',X,-.06],['head',X,.08]);
+   braco(P,1,E,-.18,.62,1.25,.35);braco(P,-1,E,-.18,.62,1.25,.35);mao(P,1,E,.7,.4);mao(P,-1,E,.7,.4);
+   const kL=Math.max(0,sn(b+1.3)),kR=Math.max(0,sn(b+1.3+Math.PI));
+   perna(P,1,E,sw*.36+.04,kL*.75+.08);perna(P,-1,E,-sw*.36+.04,kR*.75+.08);return {P,raiz:[0,.018*Math.abs(cs(b))-.025,0]};}},
+ {id:'fixa',L:4,f:(p,E)=>{const b=p*4*TAU;const P=[];
+   P.push(['spine_03',X,-.1],['neck_01',X,-.15],['head',X,-.25+.05*sn(b/2)]);
+   braco(P,1,E,.45,1.95+.12*sn(b/2),.55+.35*Math.max(0,sn(b)),.1);braco(P,-1,E,.45,1.9+.12*sn(b/2+1.5),.5+.35*Math.max(0,sn(b+1.6)),.1);mao(P,1,E,.55+.3*Math.max(0,sn(b)));mao(P,-1,E,.55+.3*Math.max(0,sn(b+1.6)));
+   perna(P,1,E,.02,.04);perna(P,-1,E,.02,.04);return {P,raiz:[0,0,0]};}},
+ {id:'aponta',L:8,f:(p,E)=>{const b=p*TAU;const P=[];const k=lisa(Math.min(1,Math.max(0,sn(b*2)*1.6)));
+   P.push(['spine_03',Y,.12*k],['head',Y,.1*k],['head',X,.02]);
+   braco(P,-1,E,.35*k-.5*(1-k),1.35*k+.1,.15+.4*(1-k),0);mao(P,-1,E,.5,.3);braco(P,1,E,-.45,.35,1.5,.6);mao(P,1,E,.5);
+   perna(P,1,E,.03,.05);perna(P,-1,E,.03,.05);return {P,raiz:[0,0,0]};}},
 ];
 const NANIM=ANIM.length,AID={};ANIM.forEach((a,i)=>AID[a.id]=i);
 const FRAMES=lowGPU?20:32;
@@ -266,7 +286,7 @@ function sorteiaPessoa(r,x,z,y,yaw,o){o=o||{};const pick=a=>a[(r()*a.length)|0];
     pele:pk(o.pele||pick(PAL.pele)),topC:pk(o.top||pick(PAL.top)),baixoC:pk(o.baixo||(V_.roupa.baixo==='jeans'?pick(PAL.jeans):pick(PAL.baixo))),tenisC:pk(o.tenis||pick(PAL.tenis)),
     cab:pk(o.cabelo||(estilo==='bone'?pick(PAL.cabelo):pick(PAL.cabelo))),acento:pk(o.acento||pick(PAL.acento)),
     pat,barba:o.barba!==undefined?o.barba:(!fem&&r()<.55?1:0),obj:o.obj||'',oculto:0};
-  if(estilo==='bone')p.acento=pk(pick(['#111111','#f1efe9','#7e1f1a','#22314d','#c9b48a','#2d5a46']));
+  if(estilo==='bone'&&!o.acento)p.acento=pk(pick(['#111111','#f1efe9','#7e1f1a','#22314d','#c9b48a','#2d5a46']));
   return p;}
 function corInst(p){const fl=p.pat+(p.barba?16:0)+((p.estilo===''||p.estilo==='curto'||p.estilo==='bone')?32:0)+(VAR[p.v].roupa.baixo==='jeans'?64:0);
   const casca=p.estilo==='black'?.034:p.estilo==='curto'?.007:p.estilo==='coque'?.006:0;
@@ -303,7 +323,8 @@ function grupoGente(lista,pai,op){op=op||{};const N=lista.length;const malhas=[]
       for(const [d,i] of cand){let lv=0;if(GH&&(forcaHi||(nh<lim.hi&&d<lim.rHi))){lv=2;nh++;}else if(nm<lim.mid&&d<lim.rMid){lv=1;nm++;}else lv=0;if(op.semLo&&lv===0)lv=1;nivel[i]=d>(op.rMax||1e9)?-1:lv;
         // câmera no meio da plateia: quem está colado na lente some (não tapa a vista nem pula na frente da câmera)
         if(op.livre&&cp.y<3.2){const p=lista[i];if(Math.hypot(p.x-cp.x,p.z-cp.z)<1.6)nivel[i]=-1;}}
-      for(const M of malhas)M.n=0;
+      G.sync();},
+    sync(){for(const M of malhas)M.n=0;
       const NV=['lo','mid','hi'];
       for(let i=0;i<N;i++){const lv=nivel[i];if(lv<0)continue;const p=lista[i];const nv=NV[lv];
         const M=malha(nv,'corpo',p.v,'',capDe(nv,'corpo',p.v,''));if(M)escreve(M,p);
