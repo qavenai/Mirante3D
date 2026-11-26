@@ -1,0 +1,593 @@
+{
+ "_aviso": "Orçamento-base estimado (nov/2026), referência Bahia (Salvador e RMS). Locação calibrada por atas de registro de preço e licitações baianas; compra estimada por fornecedores nacionais. Valores sem impostos/BDI do fornecedor final. Confirmar com fornecedores antes de enviar a cliente.",
+ "planilha": "https://claude.ai/artifact/7b1eGBETszxMZVAv5DQ7Ya",
+ "parametros": {
+  "diarias": 1,
+  "frete_compra_pct": 0.04,
+  "dolar_brl": 5.87
+ },
+ "tamanhos": {
+  "P": {
+   "nome": "Pequeno",
+   "palco_m": [
+    8,
+    6
+   ],
+   "led_m2": 18,
+   "publico": "até 2 mil pessoas",
+   "referencias": [
+    1,
+    7
+   ]
+  },
+  "M": {
+   "nome": "Médio",
+   "palco_m": [
+    12,
+    10
+   ],
+   "led_m2": 74,
+   "publico": "até 10 mil pessoas",
+   "referencias": [
+    3,
+    4,
+    5,
+    6,
+    8
+   ]
+  },
+  "G": {
+   "nome": "Grande",
+   "palco_m": [
+    20,
+    15
+   ],
+   "led_m2": 335,
+   "publico": "20 mil ou mais (escala Castelos & Ruínas)",
+   "referencias": [
+    2,
+    9
+   ]
+  }
+ },
+ "locacao": [
+  {
+   "id": "piso",
+   "item": "Piso de palco: praticáveis, saia e escada de acesso",
+   "categoria": "Palco",
+   "unidade": "m2_diaria",
+   "valor": 30,
+   "qtd": {
+    "P": 48,
+    "M": 120,
+    "G": 300
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "trelica_cobertura",
+   "item": "Cobertura e grid em treliça de alumínio, montados",
+   "categoria": "Palco",
+   "unidade": "m_trelica_diaria",
+   "valor": 42,
+   "qtd": {
+    "P": 64,
+    "M": 170,
+    "G": 420
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "lona",
+   "item": "Lona de cobertura (duas águas)",
+   "categoria": "Palco",
+   "unidade": "m2_diaria",
+   "valor": 12,
+   "qtd": {
+    "P": 80,
+    "M": 168,
+    "G": 420
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "talha",
+   "item": "Talha elétrica 1 t com operador de rigging",
+   "categoria": "Palco",
+   "unidade": "un_diaria",
+   "valor": 350,
+   "qtd": {
+    "P": 0,
+    "M": 4,
+    "G": 10
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "gradil",
+   "item": "Gradil disciplinador 2 × 1 m",
+   "categoria": "Palco",
+   "unidade": "un_diaria",
+   "valor": 47,
+   "qtd": {
+    "P": 15,
+    "M": 30,
+    "G": 60
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "house_mix",
+   "item": "House mix (tenda da mesa de som)",
+   "categoria": "Palco",
+   "unidade": "un_diaria",
+   "valor": 1476.67,
+   "qtd": {
+    "P": 0,
+    "M": 1,
+    "G": 1
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "equipe_montagem",
+   "item": "Equipe extra de montagem (8 montadores)",
+   "categoria": "Palco",
+   "unidade": "dia_montagem",
+   "valor": 2400,
+   "qtd": {
+    "P": 0,
+    "M": 1,
+    "G": 4
+   },
+   "multiplica_diarias": false
+  },
+  {
+   "id": "transporte",
+   "item": "Transporte em carreta (Salvador e RMS)",
+   "categoria": "Palco",
+   "unidade": "viagem",
+   "valor": 1800,
+   "qtd": {
+    "P": 1,
+    "M": 2,
+    "G": 6
+   },
+   "multiplica_diarias": false
+  },
+  {
+   "id": "led",
+   "item": "Painel de LED outdoor P3,9 com processadora e técnico",
+   "categoria": "LED",
+   "unidade": "m2_diaria",
+   "valor": 380,
+   "qtd": {
+    "P": 18,
+    "M": 74,
+    "G": 335
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "estrutura_led",
+   "item": "Estrutura do LED (ground stack e torres)",
+   "categoria": "LED",
+   "unidade": "m_trelica_diaria",
+   "valor": 42,
+   "qtd": {
+    "P": 12,
+    "M": 30,
+    "G": 60
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "vj",
+   "item": "Operador de mídia (VJ)",
+   "categoria": "LED",
+   "unidade": "pessoa_diaria",
+   "valor": 1950,
+   "qtd": {
+    "P": 0,
+    "M": 1,
+    "G": 2
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "servidor_midia",
+   "item": "Servidor de mídia",
+   "categoria": "LED",
+   "unidade": "un_diaria",
+   "valor": 2500,
+   "qtd": {
+    "P": 0,
+    "M": 0,
+    "G": 1
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "som_p",
+   "item": "Sonorização profissional (P.A., mesa digital, backline)",
+   "categoria": "Som, luz e energia",
+   "unidade": "diaria",
+   "valor": 6700,
+   "qtd": {
+    "P": 1,
+    "M": 0,
+    "G": 0
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "som_m",
+   "item": "Sonorização de grande porte (padrão prefeitura)",
+   "categoria": "Som, luz e energia",
+   "unidade": "diaria",
+   "valor": 15300,
+   "qtd": {
+    "P": 0,
+    "M": 1,
+    "G": 0
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "som_g",
+   "item": "Sonorização porte turnê (line array premium e delay)",
+   "categoria": "Som, luz e energia",
+   "unidade": "diaria",
+   "valor": 45000,
+   "qtd": {
+    "P": 0,
+    "M": 0,
+    "G": 1
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "luz_p",
+   "item": "Iluminação de médio porte (refletores, mesa DMX, grid 80 m)",
+   "categoria": "Som, luz e energia",
+   "unidade": "diaria",
+   "valor": 3466.67,
+   "qtd": {
+    "P": 1,
+    "M": 0,
+    "G": 0
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "luz_m",
+   "item": "Iluminação de grande porte (moving beams, LEDs, fumaça)",
+   "categoria": "Som, luz e energia",
+   "unidade": "diaria",
+   "valor": 9900,
+   "qtd": {
+    "P": 0,
+    "M": 1,
+    "G": 0
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "luz_g",
+   "item": "Iluminação porte turnê (≈30 moving heads, ≈110 refletores, strobes)",
+   "categoria": "Som, luz e energia",
+   "unidade": "diaria",
+   "valor": 30000,
+   "qtd": {
+    "P": 0,
+    "M": 0,
+    "G": 1
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "gerador_180",
+   "item": "Gerador 180 kVA com operador",
+   "categoria": "Som, luz e energia",
+   "unidade": "diaria",
+   "valor": 3766.67,
+   "qtd": {
+    "P": 1,
+    "M": 0,
+    "G": 0
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "gerador_260",
+   "item": "Gerador 260 kVA com operador",
+   "categoria": "Som, luz e energia",
+   "unidade": "diaria",
+   "valor": 4966.67,
+   "qtd": {
+    "P": 0,
+    "M": 1,
+    "G": 0
+   },
+   "multiplica_diarias": true
+  },
+  {
+   "id": "gerador_500",
+   "item": "Gerador 500 kVA com operador",
+   "categoria": "Som, luz e energia",
+   "unidade": "diaria",
+   "valor": 8000,
+   "qtd": {
+    "P": 0,
+    "M": 0,
+    "G": 2
+   },
+   "multiplica_diarias": true
+  }
+ ],
+ "compra": [
+  {
+   "id": "praticavel",
+   "item": "Praticável 2 × 1 m (alumínio, compensado naval, pés reguláveis)",
+   "categoria": "Palco",
+   "unidade": "un",
+   "valor": 2200,
+   "qtd": {
+    "P": 24,
+    "M": 60,
+    "G": 150
+   }
+  },
+  {
+   "id": "saia_escadas",
+   "item": "Saia de palco, escadas de acesso e guarda-corpo",
+   "categoria": "Palco",
+   "unidade": "m2_palco",
+   "valor": 40,
+   "qtd": {
+    "P": 48,
+    "M": 120,
+    "G": 300
+   }
+  },
+  {
+   "id": "trelica_q30",
+   "item": "Treliça Q30 de alumínio",
+   "categoria": "Palco",
+   "unidade": "m",
+   "valor": 650,
+   "qtd": {
+    "P": 64,
+    "M": 0,
+    "G": 0
+   }
+  },
+  {
+   "id": "trelica_q50",
+   "item": "Treliça Q50 de alumínio",
+   "categoria": "Palco",
+   "unidade": "m",
+   "valor": 1100,
+   "qtd": {
+    "P": 0,
+    "M": 170,
+    "G": 0
+   }
+  },
+  {
+   "id": "trelica_q60_q76",
+   "item": "Treliça pesada Q60/Q76 (ground support e grid)",
+   "categoria": "Palco",
+   "unidade": "m",
+   "valor": 1600,
+   "qtd": {
+    "P": 0,
+    "M": 0,
+    "G": 420
+   }
+  },
+  {
+   "id": "bases_torre",
+   "item": "Bases, sleeve blocks e topos de torre",
+   "categoria": "Palco",
+   "unidade": "torre",
+   "valor": 6000,
+   "qtd": {
+    "P": 4,
+    "M": 4,
+    "G": 8
+   }
+  },
+  {
+   "id": "talha",
+   "item": "Talha elétrica 1 t (motor de corrente para show)",
+   "categoria": "Palco",
+   "unidade": "un",
+   "valor": 14000,
+   "qtd": {
+    "P": 0,
+    "M": 4,
+    "G": 10
+   }
+  },
+  {
+   "id": "lona",
+   "item": "Lona de cobertura",
+   "categoria": "Palco",
+   "unidade": "m2",
+   "valor": 60,
+   "qtd": {
+    "P": 80,
+    "M": 168,
+    "G": 420
+   }
+  },
+  {
+   "id": "gradil",
+   "item": "Gradil 2 × 1 m",
+   "categoria": "Palco",
+   "unidade": "un",
+   "valor": 450,
+   "qtd": {
+    "P": 15,
+    "M": 30,
+    "G": 60
+   }
+  },
+  {
+   "id": "cenografia",
+   "item": "Cenografia sob medida (ex.: escadaria e pirâmide)",
+   "categoria": "Palco",
+   "unidade": "projeto",
+   "valor": 180000,
+   "qtd": {
+    "P": 0,
+    "M": 0,
+    "G": 1
+   }
+  },
+  {
+   "id": "led_ate50",
+   "item": "Painel de LED outdoor P3,9 — até 50 m²",
+   "categoria": "LED",
+   "unidade": "m2",
+   "valor": 7000,
+   "qtd": {
+    "P": 18,
+    "M": 0,
+    "G": 0
+   }
+  },
+  {
+   "id": "led_50a150",
+   "item": "Painel de LED outdoor P3,9 — lote de 50 a 150 m²",
+   "categoria": "LED",
+   "unidade": "m2",
+   "valor": 6500,
+   "qtd": {
+    "P": 0,
+    "M": 74,
+    "G": 0
+   }
+  },
+  {
+   "id": "led_acima150",
+   "item": "Painel de LED outdoor P3,9 — lote acima de 150 m²",
+   "categoria": "LED",
+   "unidade": "m2",
+   "valor": 6000,
+   "qtd": {
+    "P": 0,
+    "M": 0,
+    "G": 335
+   }
+  },
+  {
+   "id": "led_reserva",
+   "item": "Gabinetes reserva (≈5%)",
+   "categoria": "LED",
+   "unidade": "m2",
+   "valor": 6500,
+   "qtd": {
+    "P": 1,
+    "M": 4,
+    "G": 17
+   }
+  },
+  {
+   "id": "processadora",
+   "item": "Processadora de vídeo (envio e recepção)",
+   "categoria": "LED",
+   "unidade": "un",
+   "valor": 18000,
+   "qtd": {
+    "P": 1,
+    "M": 2,
+    "G": 4
+   }
+  },
+  {
+   "id": "servidor_midia",
+   "item": "Servidor de mídia",
+   "categoria": "LED",
+   "unidade": "un",
+   "valor": 45000,
+   "qtd": {
+    "P": 0,
+    "M": 1,
+    "G": 2
+   }
+  },
+  {
+   "id": "barras_cases",
+   "item": "Barras de suspensão, ground stack e cases",
+   "categoria": "LED",
+   "unidade": "m2_led",
+   "valor": 900,
+   "qtd": {
+    "P": 18,
+    "M": 74,
+    "G": 335
+   }
+  },
+  {
+   "id": "cabos",
+   "item": "Cabos de energia e sinal",
+   "categoria": "LED",
+   "unidade": "m2_led",
+   "valor": 250,
+   "qtd": {
+    "P": 18,
+    "M": 74,
+    "G": 335
+   }
+  }
+ ],
+ "totais_referencia_1_diaria": {
+  "P": {
+   "locacao": {
+    "palco": 7593.0,
+    "led": 7344,
+    "palco_led": 14937.0,
+    "som_luz_energia": 13933.34,
+    "evento_completo": 28870.34
+   },
+   "compra": {
+    "palco": 131870,
+    "led": 171200,
+    "frete": 12122.8,
+    "total": 315192.8
+   }
+  },
+  "M": {
+   "locacao": {
+    "palco": 23042.67,
+    "led": 31330,
+    "palco_led": 54372.67,
+    "som_luz_energia": 30166.67,
+    "evento_completo": 84539.34
+   },
+   "compra": {
+    "palco": 427380,
+    "led": 673100,
+    "frete": 44019.2,
+    "total": 1144499.2
+   }
+  },
+  "G": {
+   "locacao": {
+    "palco": 59876.67,
+    "led": 136220,
+    "palco_led": 196096.67,
+    "som_luz_energia": 91000.0,
+    "evento_completo": 287096.67
+   },
+   "compra": {
+    "palco": 1434200,
+    "led": 2667750,
+    "frete": 164078.0,
+    "total": 4266028.0
+   }
+  }
+ }
+}
