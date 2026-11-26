@@ -75,12 +75,11 @@ function resolve(pid,tam,cust){cust=cust||{};const pr=PRESETS.find(p=>p.id===pid
     alas:cust.alas!==undefined?cust.alas:/alas/.test(pr.estrutura.tipo),
     passarela:cust.passarela!==undefined?cust.passarela:!!pr.passarela,
     escadas:pr.escadas||'lateral',cortina:!!pr.cortina,
-    cenografia:cust.cenografia!==undefined?(cust.cenografia?(pr.cenografia||'escadaria'):null):(pr.cenografia&&tam==='G'?pr.cenografia:pr.cenografia?(cust.cenografiaPM?pr.cenografia:null):null),
+    cenografia:cust.cenografia!==undefined?(cust.cenografia?(pr.cenografia||'escadaria'):null):(pr.cenografia||null),
     somLuz:cust.somLuz!==undefined?cust.somLuz:true,gerador:cust.gerador!==undefined?cust.gerador:true,
     talhas:E.talhas,gradil:cust.gradil||E.gradil,houseMix:E.houseMix,pacote:cust.pacote||E.pacote,
     som:Object.assign({la:'suspenso',subs:'piso'},pr.som),luz:Object.assign({},pr.luz),efeitos:Object.assign({fumaca:true},pr.efeitos||{}),
     led,conteudo:pr.conteudo||'paisagem',assinatura:pr.assinatura||null,diarias:cust.diarias||1};
-  if(pr.cenografia==='castelos'&&tam!=='G'&&cust.cenografia===undefined)m.cenografia='castelos';   // a escadaria faz parte do preset
   return m;}
 function areaLED(ps){let a=0;for(const p of ps){const n=(p.tipo==='fundo')?1:2;a+=n*p.larg*p.alt;}return a;}
 

@@ -24,7 +24,7 @@ async function baixa(url){const r=await fetch(url);if(!r.ok)throw new Error(url+
   if(u[0]!==0x1f||u[1]!==0x8b)return u;
   if(typeof DecompressionStream!=='undefined'){try{const st=new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'));return new Uint8Array(await new Response(st).arrayBuffer());}catch(e){}}
   return gunzip(u);}
-const PASTA_GENTE='pessoas/';
+const PASTA_GENTE=(typeof PASTA_GENTE_CFG!=='undefined')?PASTA_GENTE_CFG:'pessoas/';
 const GJ=await (await fetch(PASTA_GENTE+'gente.json')).json();
 const GB=await baixa(PASTA_GENTE+'gente-base.bin.gz');
 let GH=null;                       // nível alto: baixado depois da primeira imagem (só no computador)

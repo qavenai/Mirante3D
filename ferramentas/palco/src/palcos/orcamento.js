@@ -36,7 +36,7 @@ function calcula1(base,q){let s=0;for(const it of base.locacao){if(it.categoria=
 const UN={m2_diaria:'m²',m_trelica_diaria:'m',un_diaria:'un.',dia_montagem:'dia',viagem:'viagem',pessoa_diaria:'pessoa',diaria:'pacote',un:'un.',m2_palco:'m²',m:'m',torre:'torre',m2:'m²',projeto:'projeto',m2_led:'m² de LED'};
 const fmtQ=x=>(Math.round(x*100)/100).toLocaleString('pt-BR');
 function resumo(m,q,r,base){const L=[];
-  L.push(`*${m.nome} · ${m.tam==='P'?'Pequeno':m.tam==='M'?'Médio':m.tam==='G'?'Grande':'Personalizado'}*`);
+  L.push(`*${m.nome} · ${m.pers?'Personalizado':m.tam==='P'?'Pequeno':m.tam==='M'?'Médio':m.tam==='G'?'Grande':'Personalizado'}*`);
   L.push(`Palco ${fmtQ(m.larg)} × ${fmtQ(m.prof)} m · LED ${fmtQ(q.led_m2)} m² · ${r.diarias} diária${r.diarias>1?'s':''}`);
   L.push('');L.push('*Locação*');
   L.push(`Palco: ${BRL(r.locacao.palco)}`);L.push(`LED: ${BRL(r.locacao.led)}`);L.push(`Palco + LED: ${BRL(r.locacao.palco_led)}`);

@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0A09">
+<title>Configurador de palcos · Palco, LED, montagem e orçamento</title>
+<meta name="description" content="Escolha o tipo e o tamanho do palco e veja na hora o palco 3D, o LED, a montagem passo a passo e um orçamento de locação e compra com valores-base da Bahia. Protótipo.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Configurador de palcos · Palco, LED, montagem e orçamento">
+<meta property="og:description" content="Palco 3D, LED, montagem passo a passo e orçamento automático de locação e compra (valores-base da Bahia).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230B0A09'/%3E%3Cpath d='M10 50h44v-6H10z' fill='%23E7C27A'/%3E%3Cpath d='M14 44V16h4v28M46 44V16h4v28M12 16h40v4H12z' fill='%23F4F1EA'/%3E%3Crect x='22' y='24' width='20' height='12' fill='%23A9B8FF'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Mesmo sistema visual do palco Castelos & Ruínas: mesa de pré-visualização, cartões quase pretos, rótulos em mono, ouro como destaque */
+:root{
+  --fundo:#0B0A09; --cartao:rgba(16,15,13,.88); --cartao-solido:#151412;
+  --papel:#F4F1EA; --papel-2:rgba(244,241,234,.72); --papel-3:rgba(244,241,234,.46);
+  --linha:rgba(244,241,234,.14); --ouro:#E7C27A; --ouro-2:#B8914A; --azul:#A9B8FF; --verde:#8fd19e;
+  --f-titulo:"Gloock","Didot","Bodoni 72",Georgia,serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --f-texto:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --lado:318px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--fundo);color:var(--papel);font:14px/1.45 var(--f-texto);overflow:hidden;-webkit-tap-highlight-color:transparent}
+#stage{position:fixed;inset:0}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+button,input,select{font:inherit;color:inherit}
+.ui{position:fixed;z-index:10}
+.cartao{background:var(--cartao);border:1px solid var(--linha);border-radius:4px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.mono{font:500 10.5px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--papel-3)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--ouro);outline-offset:2px}
+/* topo e abas */
+#topo{left:calc(var(--lado) + 28px);top:calc(16px + env(safe-area-inset-top,0px));padding:12px 16px 11px;max-width:420px}
+#topo .marca{color:var(--ouro);display:block;margin-bottom:6px}
+#topo h1{margin:0;font:400 26px/1.05 var(--f-titulo);text-wrap:balance}
+#topo p{margin:6px 0 0;color:var(--papel-2);font-size:12.5px}
+#abas{right:max(16px,env(safe-area-inset-right,0px));top:calc(16px + env(safe-area-inset-top,0px));display:flex;gap:4px;padding:4px}
+#abas button{border:0;background:transparent;padding:9px 12px;border-radius:3px;cursor:pointer;font:500 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--papel-2)}
+#abas button[aria-pressed="true"]{background:var(--papel);color:#121110}
+/* painel de configuração (esquerda) */
+#cfg{left:max(16px,env(safe-area-inset-left,0px));top:calc(16px + env(safe-area-inset-top,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:var(--lado);overflow:auto;padding:14px 14px 18px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin}
+#cfg h2{margin:0;font:400 22px/1.1 var(--f-titulo)}
+#cfg .grupo{display:grid;gap:8px}
+#presets{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#presets button{display:grid;gap:4px;text-align:left;border:1px solid var(--linha);background:rgba(244,241,234,.02);border-radius:3px;padding:6px;cursor:pointer;min-width:0}
+#presets button svg{width:100%;height:auto;display:block;border-radius:2px;background:#0d0d10}
+#presets button span{font-size:11.5px;line-height:1.2;color:var(--papel-2);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#presets button small{font:500 9px/1 var(--f-mono);letter-spacing:.08em;color:var(--papel-3)}
+#presets button[aria-pressed="true"]{border-color:var(--ouro);background:rgba(231,194,122,.1)}
+#presets button[aria-pressed="true"] span{color:var(--papel)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.seg button{border:1px solid var(--linha);background:transparent;border-radius:3px;padding:8px 4px;cursor:pointer;font:500 11px/1.1 var(--f-mono);letter-spacing:.06em;color:var(--papel-2);display:grid;gap:3px}
+.seg button small{font:400 9.5px/1 var(--f-mono);letter-spacing:0;color:var(--papel-3)}
+.seg button[aria-pressed="true"]{border-color:var(--ouro);color:var(--papel);background:rgba(231,194,122,.1)}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.slider label{font-size:12.5px;color:var(--papel-2)}
+.slider output{font:500 11.5px/1 var(--f-mono);color:var(--ouro);font-variant-numeric:tabular-nums}
+.slider input{grid-column:1/-1;width:100%;accent-color:var(--ouro)}
+#personal[hidden]{display:none}
+.chk{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.chk label{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--papel-2);cursor:pointer;padding:3px 0}
+.chk input{accent-color:var(--ouro);width:15px;height:15px}
+.dias{display:flex;align-items:center;gap:8px}
+.dias button{width:32px;height:32px;border:1px solid var(--linha);border-radius:3px;background:transparent;cursor:pointer;font-size:16px}
+.dias output{min-width:84px;text-align:center;font:500 13px/1 var(--f-mono)}
+#medidas{font:500 11px/1.5 var(--f-mono);color:var(--papel-2);border-top:1px solid var(--linha);padding-top:10px;font-variant-numeric:tabular-nums}
+#medidas b{color:var(--papel);font-weight:500}
+.link{color:var(--ouro);font-size:12.5px}
+/* painel direito: orçamento, LED, peças, sobre */
+.lado-d{right:max(16px,env(safe-area-inset-right,0px));top:calc(70px + env(safe-area-inset-top,0px));width:min(400px,calc(100vw - 32px));max-height:calc(100dvh - 90px - env(safe-area-inset-top,0px));overflow:auto;padding:16px 16px 14px;scrollbar-width:thin}
+.lado-d h2{margin:4px 0 6px;font:400 22px/1.1 var(--f-titulo)}
+.lado-d .sub{margin:0 0 10px;color:var(--papel-3);font-size:12px}
+.lado-d .x{position:absolute;right:8px;top:8px;border:0;background:transparent;font-size:20px;cursor:pointer;color:var(--papel-2)}
+.totais{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 12px}
+.totais div{border:1px solid var(--linha);border-radius:3px;padding:8px 10px;min-width:0}
+.totais div span{display:block;font:500 9.5px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--papel-3)}
+.totais div b{display:block;margin-top:4px;font:500 15px/1.1 var(--f-mono);font-variant-numeric:tabular-nums;color:var(--papel);white-space:nowrap}
+.totais div.forte{border-color:var(--ouro);background:rgba(231,194,122,.08)}
+.totais div.forte b{color:var(--ouro)}
+.totais div.largo{grid-column:1/-1}
+table.itens{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 12px}
+table.itens th{font:500 9.5px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--papel-3);text-align:left;padding:6px 4px;border-bottom:1px solid var(--linha)}
+table.itens td{padding:6px 4px;border-bottom:1px solid var(--linha);color:var(--papel-2);vertical-align:top}
+table.itens td.n{text-align:right;font-family:var(--f-mono);font-size:11.5px;color:var(--papel);white-space:nowrap;font-variant-numeric:tabular-nums}
+.acoes{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+.acoes button{border:1px solid var(--linha);background:transparent;border-radius:3px;padding:9px 12px;cursor:pointer;font:500 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--papel-2)}
+.acoes button.pri{background:var(--papel);color:#121110;border-color:var(--papel)}
+.aviso{margin-top:10px;padding-top:10px;border-top:1px solid var(--linha);font-size:11.5px!important;color:var(--papel-3)!important}
+.ok{color:var(--verde)!important}
+#ledConts{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:8px 0}
+#ledConts button{border:1px solid var(--linha);background:transparent;border-radius:3px;padding:9px 8px;cursor:pointer;text-align:left;font-size:12.5px;color:var(--papel-2)}
+#ledConts button[aria-pressed="true"]{border-color:var(--ouro);color:var(--papel);background:rgba(231,194,122,.1)}
+/* montagem (mesmo componente do palco Castelos & Ruínas) */
+#mont{left:calc(50% + (var(--lado) + 16px)/2 - (var(--dir,0px))/2);transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(720px,calc(100vw - var(--lado) - 64px - var(--dir,0px)));padding:10px;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:stretch}
+#mont .play{border:0;border-radius:3px;background:var(--papel);color:#121110;cursor:pointer;display:grid;place-items:center}
+#mont .play svg{width:14px;height:14px}
+#mont .mtxt{min-width:0}
+#mont .mtxt b{display:block;font:400 21px/1.1 var(--f-titulo);margin-top:3px}
+#mont .mtxt p{margin:4px 0 8px;color:var(--papel-2);font-size:12.5px;line-height:1.4}
+#montSegs{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+#montSegs button{position:relative;height:22px;border:1px solid var(--linha);background:transparent;border-radius:2px;cursor:pointer;overflow:hidden;padding:0}
+#montSegs button i{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(231,194,122,.32)}
+#montSegs button span{position:relative;font:500 9.5px/1 var(--f-mono);color:var(--papel-3)}
+#montSegs button[aria-current="step"]{border-color:var(--ouro)}
+#montSegs button[aria-current="step"] span{color:var(--ouro)}
+#montSegs button.vazia span{opacity:.4}
+#mont .pbtn{border:1px solid var(--linha);background:transparent;border-radius:3px;padding:0 14px;cursor:pointer;font:500 10.5px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--papel-2)}
+#mont .pbtn[aria-pressed="true"]{border-color:var(--ouro);color:var(--ouro)}
+#montReal{font:500 10px/1.3 var(--f-mono);letter-spacing:.06em;color:var(--ouro);text-transform:uppercase;margin-left:8px}
+#pecas ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+#pecas li button{width:100%;display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;border:0;border-left:2px solid transparent;background:transparent;padding:8px 8px 8px 10px;border-radius:2px;cursor:pointer}
+#pecas li button:hover{background:rgba(244,241,234,.05)}
+#pecas li.agora button{border-left-color:var(--ouro);background:rgba(231,194,122,.08)}
+#pecas .pn{font-size:13.5px;color:var(--papel)}
+#pecas .pq{font:500 11px/1.3 var(--f-mono);color:var(--ouro);white-space:nowrap}
+#pecas .pd{grid-column:1/-1;font-size:12px;color:var(--papel-2);line-height:1.4}
+#pecas .pe{grid-column:1/-1;font:500 9.5px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--papel-3);margin-top:2px}
+#legenda{left:calc(50% + (var(--lado) + 16px)/2);transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));text-align:center;pointer-events:none;transition:opacity .5s;width:min(520px,calc(100vw - var(--lado) - 64px))}
+#legenda b{display:block;font:400 20px/1.1 var(--f-titulo);text-shadow:0 2px 14px rgba(0,0,0,.8)}
+#legenda span{display:block;margin-top:5px;color:var(--papel-2);font-size:12.5px;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+#legenda.off{opacity:0}
+#cams{left:calc(var(--lado) + 28px);bottom:calc(16px + env(safe-area-inset-bottom,0px));padding:4px;display:flex;gap:2px;flex-wrap:wrap;max-width:calc(100vw - var(--lado) - 60px)}
+#cams button{border:0;background:transparent;padding:8px 10px;border-radius:3px;cursor:pointer;font-size:12.5px;color:var(--papel-2)}
+#cams button[aria-pressed="true"]{background:rgba(231,194,122,.16);color:var(--papel)}
+#bCfg{display:none}
+#carregando{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--fundo);transition:opacity .8s}
+#carregando.fim{opacity:0;pointer-events:none}
+#carregando div{text-align:center}
+#carregando h1{margin:8px 0 6px;font:400 38px/1 var(--f-titulo)}
+#carregando p{margin:0;color:var(--papel-3);font:500 11px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase}
+body.exporta .ui,body.exporta #legenda{display:none!important}
+body.aba-mont #cams,body.aba-mont #legenda{display:none}
+#toast{left:50%;transform:translateX(-50%);top:calc(80px + env(safe-area-inset-top,0px));padding:10px 14px;font-size:13px;z-index:60}
+/* celular: painel de configuração vira gaveta, abas embaixo */
+@media (max-width:820px){
+  :root{--lado:0px}
+  #topo{left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));max-width:none;padding:9px 12px}
+  #topo h1{font-size:19px}
+  #topo p{display:none}
+  #topo .marca{font-size:9px;margin-bottom:4px}
+  #abas{top:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));justify-content:space-between}
+  #abas button{flex:1;padding:10px 2px;font-size:9.5px;letter-spacing:.06em}
+  #bCfg{display:block}
+  #cfg{top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));width:auto;max-height:64dvh;z-index:20}
+  #cfg[data-fechado="1"]{display:none}
+  .lado-d{top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));width:auto;max-height:64dvh;z-index:20}
+  #mont{left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));transform:none;width:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));grid-template-columns:40px minmax(0,1fr);gap:10px}
+  #mont .pbtn{grid-column:1/-1;padding:9px}
+  #mont .mtxt b{font-size:17px}
+  #mont .mtxt p{font-size:11.5px;margin-bottom:6px}
+  #cams{left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:none}
+  #cams button{flex:none}
+  #legenda{left:50%;width:calc(100vw - 32px);bottom:calc(120px + env(safe-area-inset-bottom,0px))}
+  #presets{grid-template-columns:1fr 1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div id="stage" aria-label="Palco em 3D"></div>
+<header id="topo" class="ui cartao">
+  <span class="mono marca" id="marca">Configurador de palcos</span>
+  <h1 id="titulo">Palco</h1>
+  <p id="subtitulo">Palco, LED, montagem e orçamento na mesma página</p>
+</header>
+<nav id="abas" class="ui cartao" aria-label="Abas">
+  <button id="bCfg" aria-pressed="false">Configurar</button>
+  <button data-aba="palco" aria-pressed="true">Palco</button>
+  <button data-aba="led" aria-pressed="false">LED</button>
+  <button data-aba="mont" aria-pressed="false">Montagem</button>
+  <button data-aba="orc" aria-pressed="false">Orçamento</button>
+  <button data-aba="sobre" aria-pressed="false">Sobre</button>
+</nav>
+<aside id="cfg" class="ui cartao" aria-label="Configurar o palco" data-fechado="1">
+  <div class="grupo"><span class="mono" style="color:var(--ouro)">Configurar</span><h2>Escolha o palco</h2></div>
+  <div class="grupo"><span class="mono">Tipo</span><div id="presets" role="group" aria-label="Tipo de palco"></div></div>
+  <div class="grupo"><span class="mono">Tamanho</span>
+    <div class="seg" id="tams" role="group" aria-label="Tamanho">
+      <button data-t="P" aria-pressed="false">P<small>8 × 6 m</small></button>
+      <button data-t="M" aria-pressed="false">M<small>12 × 10 m</small></button>
+      <button data-t="G" aria-pressed="false">G<small>20 × 15 m</small></button>
+      <button data-t="X" aria-pressed="false">Pers.<small>medidas</small></button>
+    </div></div>
+  <div class="grupo" id="personal" hidden>
+    <div class="slider"><label for="sL">Largura do piso</label><output id="oL"></output><input type="range" id="sL" min="6" max="30" step="1"></div>
+    <div class="slider"><label for="sD">Profundidade</label><output id="oD"></output><input type="range" id="sD" min="4" max="20" step="1"></div>
+    <div class="slider"><label for="sH">Altura da estrutura</label><output id="oH"></output><input type="range" id="sH" min="5" max="20" step=".5"></div>
+    <div class="slider"><label for="sLED">Área de LED</label><output id="oLED"></output><input type="range" id="sLED" min="6" max="400" step="1"></div>
+  </div>
+  <div class="grupo"><span class="mono">Itens</span>
+    <div class="chk">
+      <label><input type="checkbox" id="cCob">Cobertura</label>
+      <label><input type="checkbox" id="cAlas">Alas laterais</label>
+      <label><input type="checkbox" id="cPass">Passarela</label>
+      <label><input type="checkbox" id="cCen">Cenografia</label>
+      <label><input type="checkbox" id="cSom">Som e luz</label>
+      <label><input type="checkbox" id="cGer">Gerador</label>
+    </div></div>
+  <div class="grupo"><span class="mono">Diárias</span>
+    <div class="dias"><button id="dMenos" aria-label="Menos uma diária">−</button><output id="oDias">1 diária</output><button id="dMais" aria-label="Mais uma diária">+</button></div></div>
+  <div id="medidas"></div>
+  <a id="linkCastelos" class="link" href="../castelos-e-ruinas-palco/" hidden>Abrir o Castelos &amp; Ruínas completo (três universos de LED) →</a>
+</aside>
+<nav id="cams" class="ui cartao" aria-label="Câmeras"></nav>
+<div id="legenda" class="ui off"><b id="legT"></b><span id="legS"></span></div>
+<aside id="pLed" class="ui cartao lado-d" hidden aria-label="LED">
+  <span class="mono" style="color:var(--ouro)">LED</span><h2>Conteúdos de demonstração</h2>
+  <p class="sub">Conteúdo autoral, sem marcas. O mesmo conteúdo atravessa todos os painéis.</p>
+  <div id="ledConts" role="group" aria-label="Conteúdo do LED"></div>
+  <table class="itens" id="ledTab"></table>
+  <p class="aviso">Resolução calculada para pitch 3,9 mm (256 pixels por metro). Para a entrega real é preciso o mapa de pixels, layout, fps, codec e cor do fornecedor.</p>
+</aside>
+<aside id="pOrc" class="ui cartao lado-d" hidden aria-label="Orçamento">
+  <span class="mono" style="color:var(--ouro)">Orçamento automático</span><h2 id="orcT">Orçamento</h2>
+  <p class="sub" id="orcS"></p>
+  <div class="totais" id="orcTot"></div>
+  <div class="acoes"><button class="pri" id="bCopiar">Copiar resumo</button><button id="bCSV">Baixar CSV</button></div>
+  <span class="mono">Locação</span><table class="itens" id="orcLoc"></table>
+  <span class="mono">Compra</span><table class="itens" id="orcCom"></table>
+  <p class="aviso">Valores-base estimados (nov/2026), referência Bahia; sem impostos/BDI; confirmar com fornecedores.</p>
+</aside>
+<aside id="pecas" class="ui cartao lado-d" hidden aria-label="Peças para montar o palco">
+  <button class="x" id="pecasX" aria-label="Fechar">×</button>
+  <span class="mono" style="color:var(--ouro)">Lista de peças</span>
+  <h2>O que vai no palco</h2>
+  <p class="sub">Toque numa peça para ver onde ela entra. Quantidades calculadas pelas medidas do palco (as mesmas do orçamento).</p>
+  <ul id="pecasL"></ul>
+  <p class="aviso">Ilustração do processo, não é plano de montagem: rigging, cargas, elétrica e segurança exigem fornecedor e profissionais habilitados.</p>
+</aside>
+<aside id="pSobre" class="ui cartao lado-d" hidden aria-label="Sobre">
+  <button class="x" id="sobreX" aria-label="Fechar">×</button>
+  <span class="mono" style="color:var(--ouro)">Sobre</span><h2>Configurador de palcos</h2>
+  <p style="color:var(--papel-2);font-size:13px">Escolha o tipo e o tamanho do palco e veja, na mesma página, o palco pronto em 3D, o LED com conteúdo de demonstração, a montagem passo a passo e um orçamento de locação e compra. As quantidades do orçamento saem das mesmas peças desenhadas: mudou o palco, mudou o orçamento.</p>
+  <p style="color:var(--papel-2);font-size:13px">Pessoas criadas a partir da base humana livre MakeHuman (CC0). Artista sempre genérico. Sem logos, marcas ou patrocinadores.</p>
+  <p style="color:var(--papel-2);font-size:13px">Para mandar a configuração ao cliente, copie o endereço desta página: ele guarda o palco escolhido.</p>
+  <p class="aviso">Estudo conceitual de palco; não é documentação técnica. Protótipo · conceito independente e não oficial. Estrutura, elétrica, rigging e segurança exigem profissionais habilitados.</p>
+  <p class="aviso" style="border-top:0;margin-top:0;padding-top:0">Gabriel Nascimento · Lauro de Freitas, BA</p>
+</aside>
+<div id="mont" class="ui cartao" hidden role="group" aria-label="Montagem do palco">
+  <button class="play" id="bMPlay" aria-label="Pausar montagem"></button>
+  <div class="mtxt"><span class="mono" id="montN">01 / 10</span><span id="montReal"></span><b id="montT">Base do palco</b><p id="montD"></p>
+    <div id="montSegs" aria-label="Etapas da montagem"></div></div>
+  <button class="pbtn" id="bPecas" aria-pressed="false">Peças</button>
+</div>
+<div id="toast" class="ui cartao" hidden role="status"></div>
+<div id="carregando"><div><span class="mono" style="color:var(--ouro)">Configurador de palcos</span><h1>Palco · LED · Montagem</h1><p>Montando o palco…</p></div></div>
+<!--APP-->
+</body>
+</html>
