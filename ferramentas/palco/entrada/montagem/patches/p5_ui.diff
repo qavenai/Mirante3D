@@ -1,0 +1,55 @@
+--- p5_ui.bak.js	2026-11-26 16:05:12.831494487 -0300
++++ p5_ui.js	2026-11-26 16:28:28.712397144 -0300
+@@ -45,8 +45,8 @@
+ function setMidia(v){modoMidia=v;bPrev.setAttribute('aria-pressed',!v);bMidia.setAttribute('aria-pressed',v);document.body.classList.toggle('midia',v);document.getElementById('midia').hidden=!v;LED_U.uMidia.value=v?1:0;layoutMidia();}
+ bPrev.onclick=()=>setMidia(false);bMidia.onclick=()=>setMidia(true);
+ bInfo.onclick=()=>{info.hidden=!info.hidden;bInfo.setAttribute('aria-pressed',!info.hidden);};document.getElementById('infoX').onclick=()=>{info.hidden=true;bInfo.setAttribute('aria-pressed','false');};
+-addEventListener('keydown',e=>{if(e.key===' '){tocando=!tocando;iconePlay();e.preventDefault();}if(['1','2','3'].includes(e.key))tShow=(+e.key-1)*DUR_U+.01;});
+-renderer.domElement.addEventListener('pointerdown',()=>{if(auto){auto=false;bSeq.setAttribute('aria-pressed','false');document.body.classList.remove('cine');}tween=null;});
++addEventListener('keydown',e=>{if(e.key===' '&&MONT.ativo){bMPlay.click();e.preventDefault();return;}if(e.key===' '){tocando=!tocando;iconePlay();e.preventDefault();}if(['1','2','3'].includes(e.key))tShow=(+e.key-1)*DUR_U+.01;});
++renderer.domElement.addEventListener('pointerdown',()=>{MONT.camAuto=false;if(auto){auto=false;bSeq.setAttribute('aria-pressed','false');document.body.classList.remove('cine');}tween=null;});
+ /* ================= MODO MÍDIA DO LED: o conteúdo como sai para o servidor de mídia ================= */
+ const midiaCena=new THREE.Scene();midiaCena.background=new THREE.Color('#0b0a09');
+ const midiaCam=new THREE.OrthographicCamera(0,1,1,0,-1,1);
+@@ -66,12 +66,12 @@
+     rot(lx,sy-sh/2-10,'<b>Lateral E</b> · câmera ao vivo + moldura','c')+rot(rx,sy-sh/2-10,'<b>Lateral D</b> · câmera ao vivo + moldura','c');}
+ addEventListener('resize',layoutMidia);
+ /* ================= LAÇO ================= */
+-function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);if(composer){composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(w,h);}camera.aspect=w/h;camera.updateProjectionMatrix();}
++function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);if(composer){composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(w,h);}camera.aspect=w/h;camera.updateProjectionMatrix();vista();}
+ addEventListener('resize',resize);
+ const relogio=new THREE.Clock();let frame=0,ultLOD=-1,congelado=false,erroLoop=0;
+ const R_VIS=R_PERTO+16;
+ function lodPublico(){for(const c of CELS_P){const d=Math.hypot(c.cx-camera.position.x,c.cz-camera.position.z);c.vis=d<R_VIS;c.g.visible=camadas.publico&&c.vis;if(c.vis)c.G.lod(camera,d<25);}
+-  crowdU.uLoFar.value=R_PERTO;FIG_U.uNear.value=R_PERTO;FIG_U.uFar.value=400;palcoG.lod(camera,true);}
++  crowdU.uLoFar.value=R_PERTO;FIG_U.uNear.value=R_PERTO;FIG_U.uFar.value=400;palcoG.lod(camera,true);if(MONT.ativo)trabG.lod(camera,true);}
+ const imagT=[0,0];
+ function renderImag(t){const i=frame%2;const c=camImag[i];const a=TOPO_ART;
+   if(i===0){c.position.set(-1.5+Math.sin(t*.21)*.25,ESC.topo+1.05+Math.sin(t*.37)*.05,a.z+6.2);c.lookAt(a.x+.1,ESC.topo+1.35,a.z);}
+@@ -83,12 +83,15 @@
+ function passo(){if(congelado)return;const dt=Math.min(.05,relogio.getDelta()),t=relogio.elapsedTime;frame++;
+   const S=atualizaShow(dt,t);
+   univBtns.forEach((b,i)=>{b.setAttribute('aria-pressed',i===S.ui);b.querySelector('i').style.width=(i===S.ui?S.tu/DUR_U*100:0)+'%';});
+-  if(auto)planoAuto(dt);
++  if(MONT.ativo)atualizaMontagem(dt,t);
++  if(MONT.ativo&&MONT.camAuto&&!tween)camMontagem(dt,t);
++  else if(auto)planoAuto(dt);
+   else if(tween){tween.t+=dt/tween.d;const k=ease(Math.min(1,tween.t));camera.position.lerpVectors(tween.p0,tween.p1,k);controls.target.lerpVectors(tween.l0,tween.l1,k);camera.fov=tween.f0+(tween.f1-tween.f0)*k;camera.updateProjectionMatrix();camera.lookAt(controls.target);if(tween.t>=1)tween=null;}
+   else controls.update();
+   if(t-ultLOD>.25){ultLOD=t;lodPublico();}
+-  if(!lowGPU||frame%2===0)renderMundo();
+-  if(!modoMidia&&(!lowGPU||frame%3===0))renderImag(t);else if(modoMidia&&frame%2===0)renderImag(t);
++  const ledVivo=!MONT.ativo||MONT.ledVivo;
++  if(ledVivo&&(!lowGPU||frame%2===0))renderMundo();
++  if(ledVivo&&!modoMidia&&(!lowGPU||frame%3===0))renderImag(t);else if(modoMidia&&frame%2===0)renderImag(t);
+   if(modoMidia){renderer.setRenderTarget(null);renderer.render(midiaCena,midiaCam);}
+   else if(composer)composer.render(dt);else renderer.render(scene,camera);}
+ aplicaCamadas();resize();layoutMidia();iconePlay();
+@@ -100,6 +103,7 @@
+   quadroMidia:(ui,tLoop)=>{congelado=true;midiaPura=true;document.body.classList.add('exporta');setMidia(true);misturaUniv(UNIV[ui],1);UE.rec=UNIV[ui].rec;atualizaMundo(tLoop,0);renderMundo();renderer.setRenderTarget(null);renderer.render(midiaCena,midiaCam);return renderer.domElement.toDataURL('image/png');},
+   moldura:()=>texMoldura.userData.canvas.toDataURL('image/png'),tamRT:(w,h)=>{rtLED.setSize(w,h);},
+   instantaneo:(ui,tu)=>{tShow=ui*DUR_U+tu;misturaUniv(UNIV[ui],1);UE.rec=UNIV[ui].rec;const L=LUZ[ui];LE.feixe.set(L.feixe);LE.feixe2.set(L.feixe2);LE.pix.set(L.pix);LE.fum.set(L.fum);LE.wash.set(L.wash);LE.hemi.set(L.hemi);for(const a of ['pixK','fogo','washI','seg'])LE[a]=L[a];},
++  setMontagem,montT:v=>{MONT.t=v;},montPausa:v=>{MONT.tocando=!v;iconeMont();},montCam:v=>{MONT.camAuto=!!v;},get montEtapa(){return MONT.etapa;},T_MONT,
+   camera,renderer,scene,mundo,blocos,lod:lodPublico,n:PUB.length,nBlocos:BLOCOS.length};
+ })();
+ </script>

@@ -1,0 +1,101 @@
+--- p1_palco.bak.js	2026-11-26 16:05:12.829761815 -0300
++++ p1_palco.js	2026-11-26 16:05:12.885334328 -0300
+@@ -39,39 +39,39 @@
+ };
+ /* ================= PISO DO PALCO, ESCADARIA E PIRÂMIDE ================= */
+ const palco=new THREE.Group();scene.add(palco);
+-bx(palco,P.piso,-21,H-.12,-15,21,H,0);bx(palco,P.preto,-21,0,-15,21,H-.12,-.05);
+-bx(palco,B({color:new THREE.Color(1.6,1.15,.6),toneMapped:false}),-21,H-.04,-.06,21,H,0);   // filete de luz na borda
++const DECK=[bx(palco,P.piso,-21,H-.12,-15,21,H,0),bx(palco,P.preto,-21,0,-15,21,H-.12,-.05),
++bx(palco,B({color:new THREE.Color(1.6,1.15,.6),toneMapped:false}),-21,H-.04,-.06,21,H,0)];   // filete de luz na borda
+ // escadaria: 16 degraus maciços
+-const DEGRAUS=[];
++const DEGRAUS=[],GUARDA=[],PIR=[],QUEIM=[],PANOS=[];let PATAMAR,FUNDO_PIR;
+ {const rise=(ESC.topo-H)/ESC.n,run=(ESC.z0-ESC.z1)/ESC.n;
+  for(let k=0;k<ESC.n;k++){const y1=H+(k+1)*rise,za=ESC.z0-k*run;const d=bx(palco,P.arenito,-ESC.w/2,H,za-run-.02,ESC.w/2,y1,za);DEGRAUS.push(d);}
+- bx(palco,P.arenito,-4.6,H,ESC.zTopo,4.6,ESC.topo,ESC.z1);                         // patamar do topo
++ PATAMAR=bx(palco,P.arenito,-4.6,H,ESC.zTopo,4.6,ESC.topo,ESC.z1);                         // patamar do topo
+  // guarda-corpos de pedra seguindo a inclinação, com o topo reto onde ficam as chamas
+  const perfil=[[ESC.z0+.8,H],[ESC.z0+.8,H+1.05],[ESC.z1,ESC.topo+1.05],[ESC.zTopo,ESC.topo+1.05],[ESC.zTopo,H]];
+  const sh=new THREE.Shape(perfil.map(p=>new THREE.Vector2(-p[0],p[1])));
+  for(const lado of [-1,1]){const g=new THREE.ExtrudeGeometry(sh,{depth:.9,bevelEnabled:true,bevelSize:.04,bevelThickness:.04,bevelSegments:1});g.rotateY(Math.PI/2);
+-   const m=new THREE.Mesh(g,P.arenito);m.position.x=lado>0?ESC.w/2:-ESC.w/2-.9;palco.add(m);}
++   const m=new THREE.Mesh(g,P.arenito);m.position.x=lado>0?ESC.w/2:-ESC.w/2-.9;palco.add(m);GUARDA.push(m);}
+  // pirâmide escalonada dos dois lados (quatro patamares)
+  for(const lado of [-1,1])for(let k=0;k<4;k++){const x0=ESC.w/2+.9,w=7.6-k*1.6,za=-3.4-k*1.9;const y0=H+k*1.25;
+-   const a=lado>0?x0:-x0-w,b=lado>0?x0+w:-x0;bx(palco,k%2?P.arenitoEsc:P.arenito,a,y0,ESC.zTopo,b,y0+1.25,za);}
++   const a=lado>0?x0:-x0-w,b=lado>0?x0+w:-x0;PIR.push(bx(palco,k%2?P.arenitoEsc:P.arenito,a,y0,ESC.zTopo,b,y0+1.25,za));}
+  // fundo da pirâmide encostando no LED
+- bx(palco,P.arenitoEsc,-13,H,LEDC.z+.05,13,H+.6,ESC.zTopo);}
++ FUNDO_PIR=bx(palco,P.arenitoEsc,-13,H,LEDC.z+.05,13,H+.6,ESC.zTopo);}
+ // pontos dos queimadores de chama no topo dos guarda-corpos
+ const FOGO_POS=[];
+ for(const lado of [-1,1])for(let i=0;i<7;i++){const t=.06+i*.15;const z=ESC.z0+.8+(ESC.z1-ESC.z0-.8)*Math.min(1,t*1.12);const y=t*1.12<1?H+1.05+(ESC.topo-H)*Math.min(1,t*1.12):ESC.topo+1.05;
+-  const x=lado*(ESC.w/2+.45);FOGO_POS.push(new V3(x,y,z));bx(palco,P.pretoMet,x-.22,y,z-.22,x+.22,y+.16,z+.22);}
++  const x=lado*(ESC.w/2+.45);FOGO_POS.push(new V3(x,y,z));QUEIM.push(bx(palco,P.pretoMet,x-.22,y,z-.22,x+.22,y+.16,z+.22));}
+ /* panos pretos de fundo e laterais (escondem a arquibancada atrás do palco) */
+-bx(palco,P.lona,-25.5,0,-15.6,25.5,YC_PANO,-15.4);for(const s of [-1,1])bx(palco,P.lona,s*25.2-.1,0,-15.4,s*25.2+.1,YC_PANO,-2);
++PANOS.push(bx(palco,P.lona,-25.5,0,-15.6,25.5,YC_PANO,-15.4));for(const s of [-1,1])PANOS.push(bx(palco,P.lona,s*25.2-.1,0,-15.4,s*25.2+.1,YC_PANO,-2));
+ /* ================= ESTRUTURA DOS LEDs ================= */
+-bx(palco,P.preto,LEDC.x0-.4,LEDC.y0-.4,LEDC.z-.6,LEDC.x1+.4,LEDC.y1+.4,LEDC.z-.02);
++const LEDCX=bx(palco,P.preto,LEDC.x0-.4,LEDC.y0-.4,LEDC.z-.6,LEDC.x1+.4,LEDC.y1+.4,LEDC.z-.02);
+ const LATG=[];
+ for(const L of LAT){const g=new THREE.Group();g.position.set(L.x,0,LATD.z);g.rotation.y=L.ang;scene.add(g);
+   bx(g,P.preto,-LATD.w/2-.3,LATD.y0-.3,-.6,LATD.w/2+.3,LATD.y0+LATD.h+.3,-.02);
+   bx(g,P.preto,-LATD.w/2,0,-.9,LATD.w/2,LATD.y0-.3,-.2);   // saia preta embaixo da tela
+   LATG.push(g);}
+ /* ================= TRELIÇAS (torres e cobertura) ================= */
+-const TUBOS=[];
+-function tubo(a,b,r){TUBOS.push([a.clone(),b.clone(),r]);}
++const TUBOS=[];let ETQ_T='';
++function tubo(a,b,r){TUBOS.push([a.clone(),b.clone(),r,ETQ_T]);}
+ function trelica(a,b,s){const d=new V3().subVectors(b,a);const L=d.length();d.normalize();const up=Math.abs(d.y)>.9?new V3(1,0,0):new V3(0,1,0);const u=new V3().crossVectors(d,up).normalize().multiplyScalar(s/2),v=new V3().crossVectors(d,u).normalize().multiplyScalar(s/2);
+   const cant=[u.clone().add(v),u.clone().sub(v),u.clone().negate().sub(v),u.clone().negate().add(v)];
+   for(const c of cant)tubo(a.clone().add(c),b.clone().add(c),.024);
+@@ -79,23 +79,30 @@
+     for(let f=0;f<4;f++){const c0=cant[f],c1=cant[(f+1)%4];tubo(p0.clone().add(i%2?c0:c1),p1.clone().add(i%2?c1:c0),.012);}
+     for(let f=0;f<4;f++)tubo(p0.clone().add(cant[f]),p0.clone().add(cant[(f+1)%4]),.012);}}
+ const YC=18.5,ZT=[-1.2,-5.2,-9.2,-14.2];
+-for(const x of [-24.5,24.5])for(const z of [-1.2,-14.2])trelica(new V3(x,0,z),new V3(x,YC+.4,z),.76);
+-for(const z of ZT)trelica(new V3(-24.5,YC,z),new V3(24.5,YC,z),.6);
++ETQ_T='torres';for(const x of [-24.5,24.5])for(const z of [-1.2,-14.2])trelica(new V3(x,0,z),new V3(x,YC+.4,z),.76);
++ETQ_T='grid';for(const z of ZT)trelica(new V3(-24.5,YC,z),new V3(24.5,YC,z),.6);
+ for(const x of [-24.5,-12,0,12,24.5])trelica(new V3(x,YC,-1.2),new V3(x,YC,-14.2),.5);
+-for(const L of LAT)for(const dx of [-1,1]){const g=LATG[LAT.indexOf(L)];const p=new V3(dx*(LATD.w/2+.8),0,-.4).applyMatrix4(g.matrixWorld.compose(g.position,g.quaternion,g.scale));trelica(new V3(p.x,0,p.z),new V3(p.x,LATD.y0+LATD.h+1.2,p.z),.4);}
++ETQ_T='torresLat';for(const L of LAT)for(const dx of [-1,1]){const g=LATG[LAT.indexOf(L)];const p=new V3(dx*(LATD.w/2+.8),0,-.4).applyMatrix4(g.matrixWorld.compose(g.position,g.quaternion,g.scale));trelica(new V3(p.x,0,p.z),new V3(p.x,LATD.y0+LATD.h+1.2,p.z),.4);}
+ // torres de delay no meio da pista
+-for(const x of [-21,21])trelica(new V3(x,0,40),new V3(x,13,40),.6);
+-{const g=new THREE.CylinderGeometry(1,1,1,6,1);g.translate(0,.5,0);const im=new THREE.InstancedMesh(g,P.trelica,TUBOS.length);const o=new THREE.Object3D(),d=new V3(),Y=new V3(0,1,0);
+- TUBOS.forEach(([a,b,r],i)=>{d.subVectors(b,a);const L=d.length();o.position.copy(a);o.quaternion.setFromUnitVectors(Y,d.normalize());o.scale.set(r,L,r);o.updateMatrix();im.setMatrixAt(i,o.matrix);});im.castShadow=true;scene.add(im);}
++ETQ_T='torresDelay';for(const x of [-21,21])trelica(new V3(x,0,40),new V3(x,13,40),.6);
++// uma malha por conjunto (torres, grid, torres dos LEDs laterais, delay), ordenada para a montagem poder revelar peça por peça
++const TRELICAS={};
++{const g=new THREE.CylinderGeometry(1,1,1,6,1);g.translate(0,.5,0);const o=new THREE.Object3D(),d=new V3(),Y=new V3(0,1,0);
++ const chave={grid:t=>t[0].x+t[1].x+(t[0].z+t[1].z)*.01,torres:t=>Math.min(t[0].y,t[1].y),torresLat:t=>Math.min(t[0].y,t[1].y),torresDelay:t=>Math.min(t[0].y,t[1].y)};
++ for(const tag of [...new Set(TUBOS.map(t=>t[3]))]){const L=TUBOS.filter(t=>t[3]===tag).sort((p,q)=>chave[tag](p)-chave[tag](q));const im=new THREE.InstancedMesh(g,P.trelica,L.length);
++  L.forEach(([a,b,r],i)=>{d.subVectors(b,a);const Lt=d.length();o.position.copy(a);o.quaternion.setFromUnitVectors(Y,d.normalize());o.scale.set(r,Lt,r);o.updateMatrix();im.setMatrixAt(i,o.matrix);});
++  im.castShadow=true;scene.add(im);TRELICAS[tag]=im;}}
+ /* ================= SISTEMA DE SOM (line arrays) ================= */
+ function lineArray(x,yTopo,z,n,ang){const g=new THREE.Group();g.position.set(x,yTopo,z);g.rotation.y=ang||0;scene.add(g);let y=0,a=0;
+   for(let i=0;i<n;i++){const b=bx(g,P.preto,-.62,-.36,-.42,.62,0,.42);b.position.set(0,y-.18,Math.sin(a)*.3*i*.1);b.rotation.x=a;y-=.4;a+=i>n*.45?.045:.008;}
+   bx(g,P.pretoMet,-.7,0,-.45,.7,.12,.45);return g;}
+-for(const s of [-1,1]){lineArray(s*22.3,17.2,.4,14,s*.12);lineArray(s*25.6,17.2,-1.2,10,s*.5);lineArray(s*21,12.4,40.6,8,0);
+-  for(let k=0;k<3;k++)for(let j=0;j<2;j++)bx(scene,P.preto,s*(9+k*1.45)-.65,j*.75,.6,s*(9+k*1.45)+.65,j*.75+.72,1.5);}
++const LA=[],SUBS=[];
++for(const s of [-1,1]){LA.push(lineArray(s*22.3,17.2,.4,14,s*.12),lineArray(s*25.6,17.2,-1.2,10,s*.5),lineArray(s*21,12.4,40.6,8,0));
++  for(let k=0;k<3;k++)for(let j=0;j<2;j++)SUBS.push(bx(scene,P.preto,s*(9+k*1.45)-.65,j*.75,.6,s*(9+k*1.45)+.65,j*.75+.72,1.5));}
+ /* ================= GRADE, MESA DE SOM E PISO DA PISTA ================= */
+-for(let x=-26;x<26;x+=1.2){bx(scene,P.grade,x,0,2.25,x+1.14,1.2,2.35);bx(scene,P.grade,x,0,2.3,x+.05,.06,3.2);}
+-{const fx=0,fz=PONTO.z;bx(scene,P.preto,fx-5,0,fz-3,fx+5,.6,fz+3.5);bx(scene,P.pretoMet,fx-3.2,.6,fz-1.2,fx+3.2,1.5,fz-.2);
++const GRADE=[];for(let x=-26;x<26;x+=1.2){GRADE.push([bx(scene,P.grade,x,0,2.25,x+1.14,1.2,2.35),bx(scene,P.grade,x,0,2.3,x+.05,.06,3.2)]);}
++const fohG=new THREE.Group();scene.add(fohG);
++{const fx=0,fz=PONTO.z;const scene=fohG;bx(scene,P.preto,fx-5,0,fz-3,fx+5,.6,fz+3.5);bx(scene,P.pretoMet,fx-3.2,.6,fz-1.2,fx+3.2,1.5,fz-.2);
+  for(const [x,z] of [[-4.8,-2.8],[4.8,-2.8],[-4.8,3.3],[4.8,3.3]])cyl(scene,P.trelica,fx+x,.6,fz+z,.06,.06,4,8);bx(scene,P.lona,fx-5.2,4.6,fz-3.2,fx+5.2,4.75,fz+3.7);
+  for(let i=0;i<8;i++)bx(scene,B({color:new THREE.Color(.3,.6,1.2),toneMapped:false}),fx-2.9+i*.75,1.5,fz-1.05,fx-2.5+i*.75,1.52,fz-.35);}
+ const chao=new THREE.Mesh(new THREE.PlaneGeometry(400,400),P.chao);chao.rotation.x=-Math.PI/2;chao.receiveShadow=true;scene.add(chao);
+@@ -132,3 +139,5 @@
+  const add=(w,h,x,y,z,ry,cor,k)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:new THREE.Color(cor).multiplyScalar(k),side:THREE.DoubleSide}));m.position.set(x,y,z);m.rotation.y=ry||0;es.add(m);};
+  add(40,20,0,8,-30,0,'#b8a4ff',1.4);add(12,18,-30,8,-10,Math.PI/2,'#ff6a3a',.9);add(12,18,30,8,-10,-Math.PI/2,'#ff6a3a',.9);add(60,8,0,30,10,0,'#ffffff',.15);
+  scene.environment=pm.fromScene(es,.04).texture;pm.dispose();}
++
++const N_P1=palco.children.length;   // o que vem depois disso no grupo 'palco' é o equipamento da banda

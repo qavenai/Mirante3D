@@ -1,0 +1,11 @@
+--- build.bak.py	2026-11-26 16:05:12.834444088 -0300
++++ build.py	2026-11-26 16:09:07.955782807 -0300
+@@ -5,7 +5,7 @@
+ H=part(653,1006)
+ for a,b in [("uCel:{value:.4},uFlash:{value:0}};","uCel:{value:.4},uFlash:{value:0},uLoFar:{value:1e6}};"),("uniform float uCel;uniform float uFlash;","uniform float uCel;uniform float uFlash;uniform float uLoFar;"),("  if(iAnim.w>9.5)hd=true;\n#endif","  if(iAnim.w>9.5)hd=true;\n  {vec3 ipw=(modelMatrix*vec4(ip,1.)).xyz;if(ipw.y<1.5&&distance(ipw.xz,uCam.xz)>uLoFar)hd=true;}\n#endif")]:
+   assert a in H,a;H=H.replace(a,b)
+-src='\n'.join([rd('head.html'),part(309,352),part(420,445),rd('p1_palco.js'),rd('p2_led.js'),H,rd('p3_gente.js'),rd('p3b_figs.js'),rd('p4_show.js'),part(1261,1274),rd('p5_ui.js')])
++src='\n'.join([rd('head.html'),part(309,352),part(420,445),rd('p1_palco.js'),rd('p2_led.js'),H,rd('p3_gente.js'),rd('p3b_figs.js'),rd('p4_show.js'),part(1261,1274),rd('p6_montagem.js'),rd('p5_ui.js')])
+ open(SP+'/palco/palco.src.html','w').write(src)
+ libs=''
+ for f in ['build/three.min.js','examples/js/controls/OrbitControls.js','examples/js/utils/BufferGeometryUtils.js','examples/js/lights/RectAreaLightUniformsLib.js','examples/js/shaders/CopyShader.js','examples/js/shaders/LuminosityHighPassShader.js','examples/js/postprocessing/EffectComposer.js','examples/js/postprocessing/ShaderPass.js','examples/js/postprocessing/RenderPass.js','examples/js/postprocessing/UnrealBloomPass.js']:
