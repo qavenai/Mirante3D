@@ -300,7 +300,9 @@ function grupoGente(lista,pai,op){op=op||{};const N=lista.length;const malhas=[]
     lod(cam,forcaHi){const cp=cam.position;cam.getWorldDirection(_f);const cand=[];
       for(let i=0;i<N;i++){const p=lista[i];const dx=p.x-cp.x,dz=p.z-cp.z,dy=p.y+1-cp.y;let d=Math.sqrt(dx*dx+dz*dz+dy*dy);const fr=(dx*_f.x+dz*_f.z+dy*_f.y)/Math.max(d,1e-3);if(fr<-.2&&d>3)d*=4;cand.push([d,i]);}
       cand.sort((a,b)=>a[0]-b[0]);let nh=0,nm=0;const lim=Object.assign({hi:LODG.hi,mid:LODG.mid,rHi:LODG.rHi,rMid:LODG.rMid},op.lim||{});
-      for(const [d,i] of cand){let lv=0;if(GH&&(forcaHi||(nh<lim.hi&&d<lim.rHi))){lv=2;nh++;}else if(nm<lim.mid&&d<lim.rMid){lv=1;nm++;}else lv=0;if(op.semLo&&lv===0)lv=1;nivel[i]=d>(op.rMax||1e9)?-1:lv;}
+      for(const [d,i] of cand){let lv=0;if(GH&&(forcaHi||(nh<lim.hi&&d<lim.rHi))){lv=2;nh++;}else if(nm<lim.mid&&d<lim.rMid){lv=1;nm++;}else lv=0;if(op.semLo&&lv===0)lv=1;nivel[i]=d>(op.rMax||1e9)?-1:lv;
+        // câmera no meio da plateia: quem está colado na lente some (não tapa a vista nem pula na frente da câmera)
+        if(op.livre&&cp.y<3.2){const p=lista[i];if(Math.hypot(p.x-cp.x,p.z-cp.z)<1.6)nivel[i]=-1;}}
       for(const M of malhas)M.n=0;
       const NV=['lo','mid','hi'];
       for(let i=0;i<N;i++){const lv=nivel[i];if(lv<0)continue;const p=lista[i];const nv=NV[lv];

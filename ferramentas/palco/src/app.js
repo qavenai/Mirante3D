@@ -583,7 +583,7 @@ const OBJ_ANIM=a=>a===AID.filmando?'celular':a===AID.copo?'copo':'';
    const ck=cx+','+cz;if(!viz.has(ck))viz.set(ck,[]);viz.get(ck).push(vi);
    const pool=POOL_ANIM[0];const anim=pool[(r()*pool.length)|0];
    PUB.push(sorteiaPessoa(r,px,pz,0,yaw,{v:vi,anim,obj:OBJ_ANIM(anim),fase:r(),vel:1}));}}
-const pubG=grupoGente(PUB,gPub,{rMax:R_PERTO+2});
+const pubG=grupoGente(PUB,gPub,{rMax:R_PERTO+2,livre:true});
 const CELS_P=[];
 // troca de animação ao longo do show (mais gente pulando no Castelo, mais celular no Céu)
 let trocaT=0,univAnt=-1;const rA=rng(99);
@@ -825,7 +825,7 @@ try{if(!THREE.EffectComposer||!THREE.UnrealBloomPass)throw 0;
 }catch(e){composer=null;}
 /* ================= CÂMERAS ================= */
 camera.near=.2;camera.far=2000;camera.updateProjectionMatrix();scene.fog=new THREE.FogExp2('#06060a',.0035);scene.background=new THREE.Color('#040406');
-const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.08;controls.maxPolarAngle=1.52;controls.minDistance=2;controls.maxDistance=180;controls.screenSpacePanning=true;
+const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.08;controls.maxPolarAngle=2.05;controls.minDistance=2;controls.maxDistance=180;controls.screenSpacePanning=true;
 const CAMS=[
   {id:'ponto',nome:'Ponto ideal',sub:'mesa de som',p:[PONTO.x,PONTO.y,PONTO.z],l:[0,7.4,-13],fov:40,leg:'Daqui a escada continua dentro do LED',ver:'O conteúdo do LED foi feito para este ponto de vista.'},
   {id:'frente',nome:'Frontal',sub:'fundo da pista',p:[0,11,66],l:[0,8,-6],fov:38,leg:'Frontal',ver:'O palco inteiro, os três LEDs e a cobertura.'},
@@ -908,8 +908,8 @@ function passo(){if(congelado)return;const dt=Math.min(.05,relogio.getDelta()),t
   const S=atualizaShow(dt,t);
   univBtns.forEach((b,i)=>{b.setAttribute('aria-pressed',i===S.ui);b.querySelector('i').style.width=(i===S.ui?S.tu/DUR_U*100:0)+'%';});
   if(auto)planoAuto(dt);
-  else if(tween){tween.t+=dt/tween.d;const k=ease(Math.min(1,tween.t));camera.position.lerpVectors(tween.p0,tween.p1,k);controls.target.lerpVectors(tween.l0,tween.l1,k);camera.fov=tween.f0+(tween.f1-tween.f0)*k;camera.updateProjectionMatrix();camera.lookAt(controls.target);if(tween.t>=1)tween=null;}
-  else controls.update();
+  else if(tween){if(tween.t===0)ultLOD=-1;tween.t+=dt/tween.d;const k=ease(Math.min(1,tween.t));camera.position.lerpVectors(tween.p0,tween.p1,k);controls.target.lerpVectors(tween.l0,tween.l1,k);camera.fov=tween.f0+(tween.f1-tween.f0)*k;camera.updateProjectionMatrix();camera.lookAt(controls.target);if(tween.t>=1)tween=null;}
+  else{controls.update();if(camera.position.y<.5){camera.position.y=.5;camera.lookAt(controls.target);}}
   if(t-ultLOD>.25){ultLOD=t;lodPublico();}
   if(!lowGPU||frame%2===0)renderMundo();
   if(espelho&&!modoMidia)espelho.render(camera);
