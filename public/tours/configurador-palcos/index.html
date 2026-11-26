@@ -5115,7 +5115,7 @@ function aplicaMont(t){const T=CENA.T,m=CENA.m,g=CENA.g,E={};CENA.etapas.forEach
   T.raiz.children.forEach(o=>{if(o.userData.base)o.visible=E.torres>0;});
   // grid montado embaixo e içado
   const dy=(Hp+1.1-Ht)*(1-sm(E.icamento));T.grid.position.y=dy;{const im=T.tubos.grid;const c=Math.round(im.userData.n*cl(E.grid/.6));im.count=c;im.visible=c>0;}
-  if(T.cob){const k=cl((E.grid-.6)/.4);T.cob.visible=k>.01;T.cob.scale.y=Math.max(.001,sm(k));}
+  if(T.cob)T.cob.visible=E.grid>.8;
   T.MH.forEach((h,i)=>{if(h.chao){const k=janela(E.acabamento,i,T.MH.length,.4);h.g.visible=k>0;h.g.position.y=T.mhBase[i]+(1-eo(k))*2;return;}const k=janela(cl((E.grid-.4)/.6),i,T.MH.length,.3);h.g.visible=k>0;h.g.position.y=T.mhBase[i]+(1-eo(k))*1.2;});
   for(const r of [...T.REFL,...T.PIX]){r.o.visible=E.grid>.75;}
   T.BLIND.forEach((b,i)=>{b.o.visible=E.acabamento>.2;});
@@ -5158,7 +5158,7 @@ function estadoFinal(){if(!CENA)return;for(const [o] of BASEM)volta(o);const T=C
   T.raiz.children.forEach(o=>{if(o.userData.base)o.visible=true;});for(const tl of T.TALHAS)tl.g.visible=false;
   T.MH.forEach((h,i)=>{h.g.visible=true;h.g.position.y=T.mhBase[i];});for(const r of [...T.REFL,...T.PIX,...T.BLIND])r.o.visible=true;
   for(const L of T.LED){L.g.visible=true;L.tela.material.uniforms.uCorte.value=1;L.g.children[0].visible=true;}
-  if(T.cob){T.cob.visible=true;T.cob.scale.y=1;}if(T.HM){T.HM.visible=true;T.HM.scale.y=1;}if(T.papel)T.papel.visible=true;
+  if(T.cob)T.cob.visible=true;if(T.HM){T.HM.visible=true;T.HM.scale.y=1;}if(T.papel)T.papel.visible=true;
   TRAB.forEach((p,i)=>{p.oculto=1;cargas[i].visible=false;});trabG.sync();montG.visible=false;gPub.visible=true;
   NO_PALCO.forEach(p=>p.oculto=0);palcoG&&palcoG.sync();LED_U.uTeste.value=0;LED_U.uLig.value=1;luzServico.intensity=luzServico2.intensity=0;
   if(destaque){scene.remove(destaque);destaque=null;}}
@@ -5354,7 +5354,7 @@ quadro();
 setTimeout(()=>{$('carregando').classList.add('fim');},400);
 window.__cfg={aplica:(p,t,cust,op)=>{EST.preset=p;EST.tam=t;if(cust)EST.cust=cust;EST.op=op||{};aplica();},aba,cam:id=>{tween=null;const c=CENA.cams.find(x=>x.id===id);camera.position.set(...c.p);controls.target.set(...c.l);camera.fov=c.fov*(camera.aspect<1?1.45:1);camera.updateProjectionMatrix();camera.lookAt(controls.target);},
   montT:t=>{MONT.t=t;},montPausa:()=>{MONT.tocando=false;iconeMont();},camEtapaJa,etapas:()=>CENA.etapas.map(e=>({id:e.id,nome:e.nome,ini:e.ini,d:e.d})),T:()=>MONT.T,fps:()=>FPS,estado:()=>({m:CENA.m,q:CENA.q,r:ORC_R,est:EST}),
-  pecas:i=>{document.querySelectorAll('#pecasL button')[i].click();},diarias:n=>{EST.diarias=n;sincronizaCfg();painelOrc();}};
+  cena:()=>CENA,pecas:i=>{document.querySelectorAll('#pecasL button')[i].click();},diarias:n=>{EST.diarias=n;sincronizaCfg();painelOrc();}};
 })();
 
 </script>
