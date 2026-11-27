@@ -1,0 +1,66 @@
+diff --git a/src/cad_engine.py b/src/cad_engine.py
+index 2755e24..5b58786 100644
+--- a/src/cad_engine.py
++++ b/src/cad_engine.py
+@@ -71,17 +71,17 @@ class CADEngine:
+         self.models: dict[str, ModelState] = {}
+         self.active_model: Optional[str] = None
+     
+-    def execute_code(self, code: str, model_name: str = \"default\") -> dict:
+-        \"\"\"
++    def execute_code(self, code: str, model_name: str = "default") -> dict:
++        """
+         Execute build123d code in a sandboxed namespace.
+         
+         Returns dict with: success, result_shape, output, error, geometry_info
+-        \"\"\"
++        """
+         # Basic static analysis for dangerous keywords
+         blacklist = ['import ', 'eval(', 'exec(', 'os.', 'subprocess', 'open(', 'write(', 'read(', 'socket']
+         for word in blacklist:
+             if word in code:
+-                return {\"success\": False, \"output\": \"\", \"error\": f\"Security Error: Forbidden keyword '{word}' detected.\", \"geometry\": None}
++                return {"success": False, "output": "", "error": f"Security Error: Forbidden keyword '{word}' detected.", "geometry": None}
+ 
+         # Capture stdout/stderr
+         old_stdout, old_stderr = sys.stdout, sys.stderr
+@@ -130,7 +130,7 @@ class CADEngine:
+         return result
+     
+     def _build_namespace(self) -> dict:
+-        \"\"\"Build the execution namespace with restricted build123d imports.\"\"\"
++        """Build the execution namespace with restricted build123d imports."""
+         # Restricted builtins
+         safe_builtins = {
+             'abs': abs, 'all': all, 'any': any, 'bin': bin, 'bool': bool,
+@@ -147,13 +147,16 @@ class CADEngine:
+             '__name__': '__main__', '__doc__': None, '__package__': None,
+         }
+         
+-        namespace = {\"__builtins__\": safe_builtins}
++        namespace = {"__builtins__": safe_builtins}
+         
+         # Import build123d into namespace
++        # (ajuste local) importa fora do sandbox e entrega só os nomes públicos: o código do usuário continua sem __import__
+         try:
+-            exec("from build123d import *", namespace)
++            import build123d as _b123d
+         except ImportError as e:
+             raise RuntimeError(f"build123d not available: {e}")
++        for _k in getattr(_b123d, "__all__", [n for n in dir(_b123d) if not n.startswith("_")]):
++            namespace[_k] = getattr(_b123d, _k)
+         
+         # Add numpy for parametric work
+         namespace["np"] = np
+diff --git a/src/vtk_renderer.py b/src/vtk_renderer.py
+index 2c4d32e..8dc80df 100644
+--- a/src/vtk_renderer.py
++++ b/src/vtk_renderer.py
+@@ -454,6 +454,7 @@ class VTKRenderer:
+             camera.SetViewAngle(30)  # FOV in degrees
+         
+         # Render window
++        renderer.ResetCameraClippingRange()  # (ajuste local) sem isto peças a mais de ~1 m da câmera somem
+         rw = vtk.vtkRenderWindow()
+         rw.SetOffScreenRendering(1)
+         rw.SetSize(self.config.width, self.config.height)
